@@ -1,16 +1,16 @@
-import { Card } from "@/components/ui/card";
 import CustomerForm from "@/components/dealer/CustomerForm";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
+import Navigation from "@/components/dealer/Navigation";
 import { HardHat, ShoppingBag, UserCheck, AlertTriangle } from "lucide-react";
 
 const Index = () => {
   const stats = [
     {
       title: "Total Sales",
-      value: "2,345",
+      value: "$45,231",
       icon: ShoppingBag,
-      trend: "+12.5%",
+      trend: "+20.1%",
       trendUp: true,
     },
     {
@@ -21,62 +21,63 @@ const Index = () => {
       trendUp: true,
     },
     {
-      title: "Customers",
-      value: "946",
+      title: "Registered Customers",
+      value: "2,317",
       icon: UserCheck,
-      trend: "+15.3%",
+      trend: "+12.5%",
       trendUp: true,
     },
     {
-      title: "Pending Claims",
-      value: "7",
+      title: "Warranty Claims",
+      value: "24",
       icon: AlertTriangle,
-      trend: "-2.5%",
+      trend: "-2.4%",
       trendUp: false,
     },
   ];
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       <Sidebar />
-      <Header />
-      
-      <main className="pl-64 pt-16">
-        <div className="p-6 max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="pl-64">
+        <Header />
+        <main className="p-6 mt-16">
+          <Navigation />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
             {stats.map((stat, index) => {
               const Icon = stat.icon;
-              
               return (
-                <Card key={index} className="p-6 hover-lift glass-card">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        {stat.title}
-                      </p>
-                      <h3 className="text-2xl font-semibold mt-1">{stat.value}</h3>
-                      <p
-                        className={`text-sm mt-1 ${
-                          stat.trendUp ? "text-green-600" : "text-red-600"
-                        }`}
-                      >
-                        {stat.trend}
-                      </p>
+                <div
+                  key={index}
+                  className="p-6 bg-card rounded-xl border border-border hover-lift"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div
+                      className={`p-2 rounded-lg ${
+                        stat.title === "Warranty Claims"
+                          ? "bg-destructive/10 text-destructive"
+                          : "bg-primary/10 text-primary"
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
                     </div>
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                      <Icon className="w-6 h-6 text-primary" />
+                    <div
+                      className={`text-sm font-medium ${
+                        stat.trendUp ? "text-green-600" : "text-red-600"
+                      }`}
+                    >
+                      {stat.trend}
                     </div>
                   </div>
-                </Card>
+                  <h3 className="text-2xl font-semibold">{stat.value}</h3>
+                  <p className="text-muted-foreground">{stat.title}</p>
+                </div>
               );
             })}
           </div>
-          
-          <div className="fade-in">
-            <CustomerForm />
-          </div>
-        </div>
-      </main>
+          <CustomerForm />
+        </main>
+      </div>
     </div>
   );
 };
