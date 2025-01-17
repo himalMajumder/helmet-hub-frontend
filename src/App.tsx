@@ -9,6 +9,7 @@ import WarrantyCheck from "./pages/WarrantyCheck";
 import BecomeDealer from "./pages/BecomeDealer";
 import SmsApiIntegration from "./components/settings/SmsApiIntegration";
 import CustomerInformation from "./pages/CustomerInformation";
+import WarrantyRegistration from "./pages/WarrantyRegistration";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/customers" element={<Index />} />
           <Route path="/products/add" element={<AddProduct />} />
           <Route path="/warranty-check" element={<WarrantyCheck />} />
+          <Route path="/warranty-registration" element={<WarrantyRegistration />} />
           <Route path="/warranties" element={<Index />} />
           <Route path="/settings" element={<Index />} />
           <Route path="/settings/sms-api" element={<SmsApiIntegration />} />
