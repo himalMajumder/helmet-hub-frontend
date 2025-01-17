@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Layout from "./components/layout/Layout";
 import Index from "./pages/Index";
 import AddProduct from "./components/dealer/AddProduct";
 import WarrantyCheck from "./pages/WarrantyCheck";
@@ -27,16 +28,16 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/customers" element={<Index />} />
-          <Route path="/products/add" element={<AddProduct />} />
-          <Route path="/warranty-check" element={<WarrantyCheck />} />
-          <Route path="/warranty-registration" element={<WarrantyRegistration />} />
-          <Route path="/warranties" element={<Index />} />
-          <Route path="/settings" element={<Index />} />
-          <Route path="/settings/sms-api" element={<SmsApiIntegration />} />
-          <Route path="/become-dealer" element={<BecomeDealer />} />
-          <Route path="/customer-information" element={<CustomerInformation />} />
+          <Route path="/" element={<Layout><Index /></Layout>} />
+          <Route path="/customers" element={<Layout><Index /></Layout>} />
+          <Route path="/products/add" element={<Layout><AddProduct /></Layout>} />
+          <Route path="/warranty-check" element={<Layout><WarrantyCheck /></Layout>} />
+          <Route path="/warranty-registration" element={<Layout><WarrantyRegistration /></Layout>} />
+          <Route path="/warranties" element={<Layout><Index /></Layout>} />
+          <Route path="/settings" element={<Layout><Index /></Layout>} />
+          <Route path="/settings/sms-api" element={<Layout><SmsApiIntegration /></Layout>} />
+          <Route path="/become-dealer" element={<Layout><BecomeDealer /></Layout>} />
+          <Route path="/customer-information" element={<Layout><CustomerInformation /></Layout>} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
