@@ -19,6 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import ProductList from "./ProductList";
 
 const formSchema = z.object({
   productName: z.string().min(2, "Product name must be at least 2 characters"),
@@ -26,6 +27,7 @@ const formSchema = z.object({
   modelNumber: z.string().min(1, "Model number is required"),
   type: z.string().min(1, "Type is required"),
   size: z.string().min(1, "Size is required"),
+  colors: z.array(z.string()).min(1, "At least one color is required"),
   price: z.string().optional(),
 });
 
@@ -40,6 +42,7 @@ const AddProduct = () => {
       modelNumber: "",
       type: "",
       size: "",
+      colors: [],
       price: "",
     },
   });
@@ -125,9 +128,9 @@ const AddProduct = () => {
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="full-face">Full Face</SelectItem>
+                      <SelectItem value="open-face">Open Face</SelectItem>
                       <SelectItem value="half-face">Half Face</SelectItem>
-                      <SelectItem value="modular">Modular</SelectItem>
-                      <SelectItem value="off-road">Off Road</SelectItem>
+                      <SelectItem value="flip-up">Flip-up</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -148,14 +151,52 @@ const AddProduct = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="xs">XS</SelectItem>
                       <SelectItem value="s">S</SelectItem>
                       <SelectItem value="m">M</SelectItem>
                       <SelectItem value="l">L</SelectItem>
                       <SelectItem value="xl">XL</SelectItem>
-                      <SelectItem value="xxl">XXL</SelectItem>
+                      <SelectItem value="free">Free Size</SelectItem>
                     </SelectContent>
                   </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="colors"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Colors</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="color"
+                      onChange={(e) => {
+                        const newColor = e.target.value;
+                        if (!field.value.includes(newColor)) {
+                          field.onChange([...field.value, newColor]);
+                        }
+                      }}
+                    />
+                  </FormControl>
+                  <div className="flex gap-2 mt-2">
+                    {field.value.map((color, index) => (
+                      <div
+                        key={index}
+                        className="relative group"
+                      >
+                        <div
+                          className="w-6 h-6 rounded-full cursor-pointer"
+                          style={{ backgroundColor: color }}
+                          onClick={() => {
+                            field.onChange(field.value.filter((_, i) => i !== index));
+                          }}
+                        />
+                        <div className="absolute inset-0 rounded-full bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-opacity" />
+                      </div>
+                    ))}
+                  </div>
                   <FormMessage />
                 </FormItem>
               )}
@@ -184,6 +225,8 @@ const AddProduct = () => {
           </div>
         </form>
       </Form>
+
+      <ProductList />
     </div>
   );
 };
