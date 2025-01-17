@@ -1,4 +1,4 @@
-import { Home, Users, FileText, Settings, LogOut, UserPlus } from "lucide-react";
+import { Home, Users, FileText, Settings, LogOut, UserPlus, Plus, ShieldCheck } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
@@ -6,6 +6,8 @@ const Sidebar = () => {
   
   const menuItems = [
     { icon: Home, label: "Dashboard", path: "/" },
+    { icon: Plus, label: "Add Product", path: "/products/add" },
+    { icon: ShieldCheck, label: "Check Warranty", path: "/warranty-check" },
     { icon: Users, label: "Customers", path: "/customers" },
     { icon: FileText, label: "Warranties", path: "/warranties" },
     { icon: Settings, label: "Settings", path: "/settings" },
