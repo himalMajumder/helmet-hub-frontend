@@ -2,7 +2,7 @@ import { Card } from "@/components/ui/card";
 import CustomerForm from "@/components/dealer/CustomerForm";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
-import { Helmet, ShoppingBag, UserCheck, AlertTriangle } from "lucide-react";
+import { HardHat, ShoppingBag, UserCheck, AlertTriangle } from "lucide-react";
 
 const Index = () => {
   const stats = [
@@ -16,7 +16,7 @@ const Index = () => {
     {
       title: "Active Warranties",
       value: "1,876",
-      icon: Helmet,
+      icon: HardHat,
       trend: "+8.2%",
       trendUp: true,
     },
