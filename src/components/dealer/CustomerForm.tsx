@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import {
   Select,
   SelectContent,
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/select";
 
 const CustomerForm = () => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     customerName: "",
     phone: "",
@@ -23,13 +25,64 @@ const CustomerForm = () => {
     memoNumber: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const sendSMS = async (phoneNumber: string, customerName: string) => {
+    try {
+      const apiKey = "52y$105KkJ4nc1owXyWNqZKGkH7SOPIYyltyy0lYs7GfBggCdXcLYO1DiB2K";
+      const message = `Dear ${customerName}, thank you for registering with us. We will contact you shortly.`;
+      const url = `http://portal.jadusms.com/smsapi/non-masking?api_key=${apiKey}&smsType=text&mobileNo=${phoneNumber}&smsContent=${encodeURIComponent(message)}`;
+      
+      const response = await fetch(url);
+      console.log("SMS API Response:", response);
+      
+      if (!response.ok) {
+        throw new Error('Failed to send SMS');
+      }
+      
+      toast({
+        title: "SMS Sent",
+        description: "Welcome message has been sent to the customer.",
+      });
+    } catch (error) {
+      console.error("SMS sending failed:", error);
+      toast({
+        title: "SMS Failed",
+        description: "Could not send welcome message to the customer.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted:", formData);
+    
+    // Send SMS to the customer
+    await sendSMS(formData.phone, formData.customerName);
+    
+    // Reset form
+    setFormData({
+      customerName: "",
+      phone: "",
+      email: "",
+      address: "",
+      product: "",
+      model: "",
+      serialNumber: "",
+      memoNumber: "",
+    });
+    
+    toast({
+      title: "Success",
+      description: "Customer registered successfully",
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSelectChange = (value: string, name: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -90,7 +143,7 @@ const CustomerForm = () => {
           
           <div className="space-y-2">
             <Label>Product</Label>
-            <Select>
+            <Select onValueChange={(value) => handleSelectChange(value, "product")}>
               <SelectTrigger>
                 <SelectValue placeholder="Select product" />
               </SelectTrigger>
@@ -104,7 +157,7 @@ const CustomerForm = () => {
           
           <div className="space-y-2">
             <Label>Model</Label>
-            <Select>
+            <Select onValueChange={(value) => handleSelectChange(value, "model")}>
               <SelectTrigger>
                 <SelectValue placeholder="Select model" />
               </SelectTrigger>
@@ -142,7 +195,20 @@ const CustomerForm = () => {
         </div>
         
         <div className="flex justify-end space-x-4">
-          <Button variant="outline" type="button">
+          <Button 
+            variant="outline" 
+            type="button"
+            onClick={() => setFormData({
+              customerName: "",
+              phone: "",
+              email: "",
+              address: "",
+              product: "",
+              model: "",
+              serialNumber: "",
+              memoNumber: "",
+            })}
+          >
             Clear
           </Button>
           <Button type="submit">Register Customer</Button>
