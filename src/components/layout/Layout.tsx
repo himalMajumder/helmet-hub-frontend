@@ -25,7 +25,6 @@ const Layout = ({ children }: LayoutProps) => {
           variant="ghost"
           size="icon"
           onClick={() => setIsMobileMenuOpen(true)}
-          aria-label="Open menu"
         >
           <Menu className="h-6 w-6" />
         </Button>
@@ -38,7 +37,6 @@ const Layout = ({ children }: LayoutProps) => {
         </SheetContent>
       </Sheet>
 
-      {/* Main Content */}
       <div className="md:pl-64">
         <Header />
         <main className="p-4 md:p-6 mt-16">
