@@ -8,6 +8,7 @@ import AddProduct from "./components/dealer/AddProduct";
 import WarrantyCheck from "./pages/WarrantyCheck";
 import BecomeDealer from "./pages/BecomeDealer";
 import SmsApiIntegration from "./components/settings/SmsApiIntegration";
+import CustomerInformation from "./pages/CustomerInformation";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/settings" element={<Index />} />
           <Route path="/settings/sms-api" element={<SmsApiIntegration />} />
           <Route path="/become-dealer" element={<BecomeDealer />} />
+          <Route path="/customer-information" element={<CustomerInformation />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
