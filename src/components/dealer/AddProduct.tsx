@@ -21,6 +21,8 @@ import {
 import { useToast } from "@/components/ui/use-toast";
 import ProductList from "./ProductList";
 import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
   productName: z.string().min(2, "Product name must be at least 2 characters"),
@@ -34,6 +36,35 @@ const formSchema = z.object({
 
 const AddProduct = () => {
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [session, setSession] = useState(null);
+  
+  useEffect(() => {
+    // Check for authentication status
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        toast({
+          variant: "destructive",
+          title: "Authentication required",
+          description: "Please log in to add products.",
+        });
+        navigate("/login");
+      }
+      setSession(session);
+    });
+
+    // Subscribe to auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      if (!session) {
+        navigate("/login");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate, toast]);
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,9 +81,18 @@ const AddProduct = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
+      if (!session) {
+        toast({
+          variant: "destructive",
+          title: "Authentication required",
+          description: "Please log in to add products.",
+        });
+        navigate("/login");
+        return;
+      }
+
       console.log("Form submitted:", values);
       
-      // Insert the product into Supabase
       const { data, error } = await supabase
         .from('products')
         .insert({
@@ -68,7 +108,20 @@ const AddProduct = () => {
 
       if (error) {
         console.error("Error inserting product:", error);
-        throw error;
+        let errorMessage = "Failed to add product. ";
+        
+        if (error.code === "42501") {
+          errorMessage += "You don't have permission to add products.";
+        } else {
+          errorMessage += "Please try again.";
+        }
+        
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: errorMessage,
+        });
+        return;
       }
 
       console.log("Product inserted successfully:", data);
@@ -87,6 +140,8 @@ const AddProduct = () => {
       });
     }
   };
+
+  // ... keep existing code (form JSX)
 
   return (
     <div className="p-6">
