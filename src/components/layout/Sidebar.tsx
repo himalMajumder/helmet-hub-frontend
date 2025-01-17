@@ -8,7 +8,7 @@ const Sidebar = () => {
     { icon: Home, label: "Dashboard", path: "/" },
     { icon: Plus, label: "Add Product", path: "/products/add" },
     { icon: ShieldCheck, label: "Check Warranty", path: "/warranty-check" },
-    { icon: FileCheck, label: "Register Warranty", path: "/warranty-registration" },
+    { icon: FileText, label: "Register Warranty", path: "/warranty-registration" },
     { icon: Users, label: "Customers", path: "/customers" },
     { icon: UserCircle, label: "Customer Information", path: "/customer-information" },
     { 
