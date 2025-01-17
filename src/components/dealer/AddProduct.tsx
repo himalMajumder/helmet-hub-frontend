@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
 import ProductList from "./ProductList";
+import { supabase } from "@/integrations/supabase/client";
 
 const formSchema = z.object({
   productName: z.string().min(2, "Product name must be at least 2 characters"),
@@ -50,6 +51,28 @@ const AddProduct = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       console.log("Form submitted:", values);
+      
+      // Insert the product into Supabase
+      const { data, error } = await supabase
+        .from('products')
+        .insert({
+          name: values.productName,
+          model: values.model,
+          model_number: values.modelNumber,
+          type: values.type,
+          size: values.size,
+          price: values.price ? parseFloat(values.price) : null,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error("Error inserting product:", error);
+        throw error;
+      }
+
+      console.log("Product inserted successfully:", data);
+      
       toast({
         title: "Product added successfully",
         description: `${values.productName} has been added to the catalog.`,
