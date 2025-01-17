@@ -1,4 +1,4 @@
-import { Home, Users, FileText, Settings, LogOut, UserPlus, Plus, ShieldCheck, MessageSquare, UserCircle, FileCheck } from "lucide-react";
+import { Home, Users, FileText, Settings, LogOut, UserPlus, Plus, ShieldCheck, MessageSquare, UserCircle, Shield, UserCog } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
@@ -16,6 +16,8 @@ const Sidebar = () => {
       label: "Settings", 
       path: "/settings",
       subItems: [
+        { icon: UserCog, label: "User Management", path: "/settings/users" },
+        { icon: Shield, label: "Role Management", path: "/settings/roles" },
         { icon: MessageSquare, label: "SMS API Integration", path: "/settings/sms-api" }
       ]
     },
