@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
+import FileCheck from "@/components/ui/file-check";
 
 interface FormData {
   dealerName: string;
@@ -47,7 +48,6 @@ const BecomeDealer = () => {
     e.preventDefault();
     console.log("Form submitted:", formData);
     
-    // Here you would typically send the data to your backend
     toast({
       title: "Application Submitted",
       description: "We'll review your application and get back to you soon.",
@@ -137,6 +137,7 @@ const BecomeDealer = () => {
                       onChange={handleFileChange}
                       required
                     />
+                    <FileCheck file={formData.nidPhoto} accept="image/*" maxSize={5 * 1024 * 1024} />
                   </div>
                   
                   <div className="space-y-2">
@@ -149,6 +150,7 @@ const BecomeDealer = () => {
                       onChange={handleFileChange}
                       required
                     />
+                    <FileCheck file={formData.tradeLicense} accept=".pdf,.doc,.docx" maxSize={10 * 1024 * 1024} />
                   </div>
                   
                   <div className="space-y-2">
@@ -161,6 +163,7 @@ const BecomeDealer = () => {
                       onChange={handleFileChange}
                       required
                     />
+                    <FileCheck file={formData.companyDocuments} accept=".pdf,.doc,.docx" maxSize={10 * 1024 * 1024} />
                   </div>
                 </div>
                 
