@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ShieldCheck, Plus } from "lucide-react";
+import { ShieldCheck, Plus, Users } from "lucide-react";
 
 const Navigation = () => {
   const location = useLocation();
@@ -16,6 +16,11 @@ const Navigation = () => {
       href: "/warranty-check",
       label: "Check Warranty",
       icon: ShieldCheck,
+    },
+    {
+      href: "/dealer-directory",
+      label: "Dealer Directory",
+      icon: Users,
     },
   ];
 
