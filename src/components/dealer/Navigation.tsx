@@ -1,50 +1,26 @@
-import { Link, useLocation } from "react-router-dom";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { ShieldCheck, Plus, Users } from "lucide-react";
+import { Link } from 'react-router-dom';
 
 const Navigation = () => {
-  const location = useLocation();
-  
-  const links = [
-    {
-      href: "/products/add",
-      label: "Add Product",
-      icon: Plus,
-    },
-    {
-      href: "/warranty-check",
-      label: "Check Warranty",
-      icon: ShieldCheck,
-    },
-    {
-      href: "/dealer-directory",
-      label: "Dealer Directory",
-      icon: Users,
-    },
-  ];
-
   return (
-    <nav className="flex gap-4 mb-8">
-      {links.map((link) => {
-        const Icon = link.icon;
-        return (
-          <Link key={link.href} to={link.href}>
-            <Button
-              variant={location.pathname === link.href ? "default" : "outline"}
-              className={cn(
-                "gap-2",
-                location.pathname === link.href
-                  ? ""
-                  : "hover:bg-primary hover:text-primary-foreground"
-              )}
-            >
-              <Icon className="w-4 h-4" />
-              {link.label}
-            </Button>
-          </Link>
-        );
-      })}
+    <nav className="flex space-x-4">
+      <Link 
+        to="/dealer-directory" 
+        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+      >
+        Dealer Directory
+      </Link>
+      <Link 
+        to="/customer-information" 
+        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+      >
+        Customer Information
+      </Link>
+      <Link 
+        to="/warranty-registration" 
+        className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+      >
+        Warranty Registration
+      </Link>
     </nav>
   );
 };
