@@ -1,4 +1,4 @@
-import CustomerForm from "@/components/dealer/CustomerForm";
+import CustomerList from "@/components/dealer/CustomerList";
 import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 import Navigation from "@/components/dealer/Navigation";
@@ -75,7 +75,7 @@ const Index = () => {
               );
             })}
           </div>
-          <CustomerForm />
+          <CustomerList />
         </main>
       </div>
     </div>
