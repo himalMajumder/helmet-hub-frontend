@@ -3,14 +3,14 @@ import { Input } from "@/components/ui/input";
 
 const Header = () => {
   return (
-    <header className="h-16 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border fixed top-0 right-0 left-64 z-20 flex items-center px-6">
+    <header className="h-16 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border fixed top-0 right-0 left-0 md:left-64 z-20 flex items-center px-4 md:px-6">
       <div className="flex-1 flex items-center">
-        <div className="relative w-96">
+        <div className="relative w-full md:w-96">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input
             type="search"
             placeholder="Search..."
-            className="pl-10 bg-secondary"
+            className="pl-10 bg-secondary w-full"
           />
         </div>
       </div>
@@ -25,7 +25,7 @@ const Header = () => {
           <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
             <span className="text-sm font-medium">JD</span>
           </div>
-          <div>
+          <div className="hidden md:block">
             <p className="text-sm font-medium">John Doe</p>
             <p className="text-xs text-muted-foreground">Dealer</p>
           </div>
