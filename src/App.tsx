@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import AddProduct from "./components/dealer/AddProduct";
 import WarrantyCheck from "./pages/WarrantyCheck";
+import BecomeDealer from "./pages/BecomeDealer";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,6 +30,7 @@ const App = () => (
           <Route path="/warranty-check" element={<WarrantyCheck />} />
           <Route path="/warranties" element={<Index />} />
           <Route path="/settings" element={<Index />} />
+          <Route path="/become-dealer" element={<BecomeDealer />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
