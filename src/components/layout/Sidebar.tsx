@@ -11,7 +11,6 @@ const Sidebar = () => {
     { icon: FileCheck, label: "Register Warranty", path: "/warranty-registration" },
     { icon: Users, label: "Customers", path: "/customers" },
     { icon: UserCircle, label: "Customer Information", path: "/customer-information" },
-    { icon: FileText, label: "Warranties", path: "/warranties" },
     { 
       icon: Settings, 
       label: "Settings", 
