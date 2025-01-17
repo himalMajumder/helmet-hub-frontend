@@ -1,179 +1,180 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { useToast } from "@/components/ui/use-toast";
-import Header from "@/components/layout/Header";
-import Sidebar from "@/components/layout/Sidebar";
+import { supabase } from "@/lib/supabase";
+import * as XLSX from 'xlsx';
+import { Trash2, Edit, Eye, Upload } from "lucide-react";
 
-interface FormData {
-  dealerName: string;
-  companyName: string;
-  phone: string;
+interface Dealer {
+  id: string;
+  name: string;
   email: string;
+  phone: string;
   address: string;
-  nidPhoto: File | null;
-  tradeLicense: File | null;
-  companyDocuments: File | null;
+  created_at: string;
 }
 
 const BecomeDealer = () => {
+  const [dealers, setDealers] = useState<Dealer[]>([]);
   const { toast } = useToast();
-  const [formData, setFormData] = useState<FormData>({
-    dealerName: "",
-    companyName: "",
-    phone: "",
-    email: "",
-    address: "",
-    nidPhoto: null,
-    tradeLicense: null,
-    companyDocuments: null,
-  });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  const fetchDealers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('dealers')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, files } = e.target;
-    if (files && files.length > 0) {
-      setFormData((prev) => ({ ...prev, [name]: files[0] }));
+      if (error) throw error;
+      setDealers(data || []);
+    } catch (error) {
+      console.error('Error fetching dealers:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to fetch dealers"
+      });
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    
-    // Here you would typically send the data to your backend
-    toast({
-      title: "Application Submitted",
-      description: "We'll review your application and get back to you soon.",
-    });
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('dealers')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Dealer deleted successfully"
+      });
+      
+      fetchDealers();
+    } catch (error) {
+      console.error('Error deleting dealer:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to delete dealer"
+      });
+    }
   };
 
+  const handleExcelUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const data = new Uint8Array(e.target?.result as ArrayBuffer);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[sheetName];
+        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+        // Insert dealers from Excel
+        const { error } = await supabase
+          .from('dealers')
+          .insert(jsonData);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Dealers uploaded successfully"
+        });
+        
+        fetchDealers();
+      };
+      reader.readAsArrayBuffer(file);
+    } catch (error) {
+      console.error('Error uploading dealers:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to upload dealers"
+      });
+    }
+  };
+
+  // Fetch dealers on component mount
+  useState(() => {
+    fetchDealers();
+  }, []);
+
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <div className="flex">
-        <Sidebar />
-        <main className="flex-1 p-6 ml-64">
-          <div className="container mx-auto max-w-3xl">
-            <Card className="p-6">
-              <h1 className="text-2xl font-bold mb-6">Become a Dealer</h1>
-              
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <Label htmlFor="dealerName">Dealer's Name</Label>
-                    <Input
-                      id="dealerName"
-                      name="dealerName"
-                      value={formData.dealerName}
-                      onChange={handleInputChange}
-                      required
-                    />
+    <div className="container mx-auto p-6">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Dealer Directory</h1>
+        <div className="flex gap-4">
+          <Button
+            onClick={() => document.getElementById('excel-upload')?.click()}
+            className="flex items-center gap-2"
+          >
+            <Upload className="w-4 h-4" />
+            Upload Excel
+          </Button>
+          <input
+            id="excel-upload"
+            type="file"
+            accept=".xlsx,.xls"
+            className="hidden"
+            onChange={handleExcelUpload}
+          />
+        </div>
+      </div>
+
+      <div className="border rounded-lg">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Name</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Address</TableHead>
+              <TableHead>Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {dealers.map((dealer) => (
+              <TableRow key={dealer.id}>
+                <TableCell>{dealer.name}</TableCell>
+                <TableCell>{dealer.email}</TableCell>
+                <TableCell>{dealer.phone}</TableCell>
+                <TableCell>{dealer.address}</TableCell>
+                <TableCell>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => console.log('View dealer:', dealer.id)}
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => console.log('Edit dealer:', dealer.id)}
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(dealer.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="companyName">Company Name</Label>
-                    <Input
-                      id="companyName"
-                      name="companyName"
-                      value={formData.companyName}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="address">Address</Label>
-                  <Input
-                    id="address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-4">
-                  <h2 className="text-lg font-semibold">Required Documents</h2>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="nidPhoto">NID Photo</Label>
-                    <Input
-                      id="nidPhoto"
-                      name="nidPhoto"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleFileChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="tradeLicense">Trade License</Label>
-                    <Input
-                      id="tradeLicense"
-                      name="tradeLicense"
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={handleFileChange}
-                      required
-                    />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="companyDocuments">Company Documents</Label>
-                    <Input
-                      id="companyDocuments"
-                      name="companyDocuments"
-                      type="file"
-                      accept=".pdf,.doc,.docx"
-                      onChange={handleFileChange}
-                      required
-                    />
-                  </div>
-                </div>
-                
-                <div className="flex justify-end space-x-4">
-                  <Button type="button" variant="outline">
-                    Cancel
-                  </Button>
-                  <Button type="submit">Submit Application</Button>
-                </div>
-              </form>
-            </Card>
-          </div>
-        </main>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     </div>
   );
