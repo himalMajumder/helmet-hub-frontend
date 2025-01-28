@@ -8,8 +8,13 @@ import { Mail, Lock, User } from "lucide-react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useState } from "react";
+import axiosConfig from "@/lib/axiosConfig";
 
 const Login = () => {
+  const apiUrl = import.meta.env.VITE_API_URL;
+
+  console.log("API URL:", apiUrl);
+
   const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("signin");
@@ -32,24 +37,41 @@ const Login = () => {
     email: Yup.string().email("Invalid email format").required("Email is required"),
   });
 
-  const handleLogin = (values: { email: string; password: string }) => {
-    // Mock authentication
-    if (
-      values.email === "" || // Allow empty credentials
-      (values.email === "admin@gmail.com" && values.password === "12345")
-    ) {
-      toast({
-        title: "Success",
-        description: "Logged in successfully!",
-      });
-      navigate("/");
-    } else {
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Invalid credentials. Try empty fields or admin@gmail.com/12345",
-      });
-    }
+  const handleLogin = async (values: { email: string; password: string }) => {
+
+    toast({
+      title: "Success",
+      description: "Logged in successfully!",
+    });
+
+    let response = await axiosConfig({
+      method: "get",
+      url: "todos",
+    })
+
+    console.log(response);
+
+
+    // localStorage.setItem("token", "mock-token"); // Simulate token storage
+    // window.location.href = "/"; // Redirect to private route
+
+    // // Mock authentication
+    // if (
+    //   values.email === "" || // Allow empty credentials
+    //   (values.email === "admin@gmail.com" && values.password === "12345")
+    // ) {
+    //   toast({
+    //     title: "Success",
+    //     description: "Logged in successfully!",
+    //   });
+    //   navigate("/");
+    // } else {
+    //   toast({
+    //     variant: "destructive",
+    //     title: "Error",
+    //     description: "Invalid credentials. Try empty fields or admin@gmail.com/12345",
+    //   });
+    // }
   };
 
   const handleSignUp = (values: { fullName: string; email: string; password: string }) => {
@@ -72,7 +94,7 @@ const Login = () => {
       <Card className="w-full max-w-md p-6 space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="signin">Sign In</TabsTrigger>
+            <TabsTrigger value="signin">Sign In </TabsTrigger>
             <TabsTrigger value="signup">Sign Up</TabsTrigger>
           </TabsList>
 

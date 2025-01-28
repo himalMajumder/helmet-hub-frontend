@@ -12,38 +12,44 @@ import BecomeDealer from "./pages/BecomeDealer";
 import SmsApiIntegration from "./components/settings/SmsApiIntegration";
 import CustomerInformation from "./pages/CustomerInformation";
 import WarrantyRegistration from "./pages/WarrantyRegistration";
+import PrivateRoute from "./components/PrivateRoute";
+import PublicRoute from "./components/PublicRoute";
 
 const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,
-      refetchOnWindowFocus: false,
-    },
-  },
+	defaultOptions: {
+		queries: {
+			staleTime: 5 * 60 * 1000,
+			refetchOnWindowFocus: false,
+		},
+	},
 });
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={<Layout><Index /></Layout>} />
-          <Route path="/customers" element={<Layout><Index /></Layout>} />
-          <Route path="/products/add" element={<Layout><AddProduct /></Layout>} />
-          <Route path="/warranty-check" element={<Layout><WarrantyCheck /></Layout>} />
-          <Route path="/warranty-registration" element={<Layout><WarrantyRegistration /></Layout>} />
-          <Route path="/warranties" element={<Layout><Index /></Layout>} />
-          <Route path="/settings" element={<Layout><Index /></Layout>} />
-          <Route path="/settings/sms-api" element={<Layout><SmsApiIntegration /></Layout>} />
-          <Route path="/become-dealer" element={<Layout><BecomeDealer /></Layout>} />
-          <Route path="/customer-information" element={<Layout><CustomerInformation /></Layout>} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+	<QueryClientProvider client={queryClient}>
+		<TooltipProvider>
+			<Toaster />
+			<Sonner />
+			<BrowserRouter>
+				<Routes>
+					{/* <Route path="/login" element={<Login />} /> */}
+					{/* <Route path="/" element={<Layout><Index /></Layout>} /> */}
+
+					<Route path="/login" element={<PublicRoute><Login /></PublicRoute>}/>
+					<Route path="/" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>}/> 
+
+					<Route path="/customers" element={<Layout><Index /></Layout>} />
+					<Route path="/products/add" element={<Layout><AddProduct /></Layout>} />
+					<Route path="/warranty-check" element={<Layout><WarrantyCheck /></Layout>} />
+					<Route path="/warranty-registration" element={<Layout><WarrantyRegistration /></Layout>} />
+					<Route path="/warranties" element={<Layout><Index /></Layout>} />
+					<Route path="/settings" element={<Layout><Index /></Layout>} />
+					<Route path="/settings/sms-api" element={<Layout><SmsApiIntegration /></Layout>} />
+					<Route path="/become-dealer" element={<Layout><BecomeDealer /></Layout>} />
+					<Route path="/customer-information" element={<Layout><CustomerInformation /></Layout>} />
+				</Routes>
+			</BrowserRouter>
+		</TooltipProvider>
+	</QueryClientProvider>
 );
 
 export default App;
