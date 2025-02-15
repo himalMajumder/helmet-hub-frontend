@@ -1,221 +1,165 @@
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
+import axiosConfig from "@/lib/axiosConfig";
+import { useAppContext } from "@/contexts/AppContext";
+
+const validationSchema = Yup.object().shape({
+    customerName: Yup.string().required("Customer Name is required"),
+    phone: Yup.string()
+        .matches(/^[0-9]+$/, "Phone must be only digits")
+        .min(10, "Phone must be at least 10 digits")
+        .required("Phone is required"),
+    email: Yup.string().email("Invalid email").required("Email is required"),
+    address: Yup.string().required("Address is required"),
+    product: Yup.string().required("Product selection is required"),
+    model: Yup.string().required("Model selection is required"),
+    serialNumber: Yup.string().required("Serial Number is required"),
+    memoNumber: Yup.string().required("Memo Number is required"),
+});
 
 const CustomerForm = () => {
-  const { toast } = useToast();
-  const [formData, setFormData] = useState({
-    customerName: "",
-    phone: "",
-    email: "",
-    address: "",
-    product: "",
-    model: "",
-    serialNumber: "",
-    memoNumber: "",
-  });
+    const { toast } = useToast();
+    const { authenticated_token } = useAppContext();
 
-  const sendSMS = async (phoneNumber: string, customerName: string) => {
-    try {
-      const apiKey = "52y$105KkJ4nc1owXyWNqZKGkH7SOPIYyltyy0lYs7GfBggCdXcLYO1DiB2K";
-      const message = `Dear ${customerName}, thank you for registering with us. We will contact you shortly.`;
-      const url = `http://portal.jadusms.com/smsapi/non-masking?api_key=${apiKey}&smsType=text&mobileNo=${phoneNumber}&smsContent=${encodeURIComponent(message)}`;
-      
-      const response = await fetch(url);
-      console.log("SMS API Response:", response);
-      
-      if (!response.ok) {
-        throw new Error('Failed to send SMS');
-      }
-      
-      toast({
-        title: "SMS Sent",
-        description: "Welcome message has been sent to the customer.",
-      });
-    } catch (error) {
-      console.error("SMS sending failed:", error);
-      toast({
-        title: "SMS Failed",
-        description: "Could not send welcome message to the customer.",
-        variant: "destructive",
-      });
-    }
-  };
+    return (
+        <Card className="p-6 glass-card">
+            <h2 className="text-2xl font-semibold mb-6">New Customer Registration</h2>
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
-    
-    // Send SMS to the customer
-    await sendSMS(formData.phone, formData.customerName);
-    
-    // Reset form
-    setFormData({
-      customerName: "",
-      phone: "",
-      email: "",
-      address: "",
-      product: "",
-      model: "",
-      serialNumber: "",
-      memoNumber: "",
-    });
-    
-    toast({
-      title: "Success",
-      description: "Customer registered successfully",
-    });
-  };
+            <Formik
+                initialValues={{
+                    customerName: "",
+                    phone: "",
+                    email: "",
+                    address: "",
+                    product: "",
+                    model: "",
+                    serialNumber: "",
+                    memoNumber: "",
+                }}
+                validationSchema={validationSchema}
+                onSubmit={async (values, { resetForm }) => {
+                    try {
+                        console.log("Form submitted:", values);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+                        let response = await axiosConfig({
+                            method: "post",
+                            data: values,
+                            url: "customer",
+                            headers: {
+                                Authorization: `Bearer ${authenticated_token}`,
+                            }
+                        })
 
-  const handleSelectChange = (value: string, name: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+                        if (response.status === 200) {
+                            toast({
+                                title: "Success",
+                                description: "Customer registered successfully",
+                            });
+                            resetForm();
+                        }
+                    } catch (error) {
+                        toast({
+                            title: "Error",
+                            description: "Failed to register customer. Please try again.",
+                            variant: "destructive",
+                        });
+                        console.error("Error submitting form:", error);
+                    }
+                }}
+            >
+                {({ setFieldValue, resetForm }) => (
+                    <Form className="space-y-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="customerName">Customer Name</Label>
+                                <Field as={Input} id="customerName" name="customerName" className="w-full" />
+                                <ErrorMessage name="customerName" component="div" className="text-red-500 text-sm" />
+                            </div>
 
-  return (
-    <Card className="p-6 glass-card">
-      <h2 className="text-2xl font-semibold mb-6">New Customer Registration</h2>
-      
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <Label htmlFor="customerName">Customer Name</Label>
-            <Input
-              id="customerName"
-              name="customerName"
-              value={formData.customerName}
-              onChange={handleChange}
-              className="w-full"
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number</Label>
-            <Input
-              id="phone"
-              name="phone"
-              type="tel"
-              value={formData.phone}
-              onChange={handleChange}
-              className="w-full"
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full"
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="address">Address</Label>
-            <Input
-              id="address"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              className="w-full"
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label>Product</Label>
-            <Select onValueChange={(value) => handleSelectChange(value, "product")}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select product" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="helmet1">Sport Helmet X1</SelectItem>
-                <SelectItem value="helmet2">City Rider Pro</SelectItem>
-                <SelectItem value="helmet3">Adventure Elite</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <Label>Model</Label>
-            <Select onValueChange={(value) => handleSelectChange(value, "model")}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select model" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="model1">2023 Edition</SelectItem>
-                <SelectItem value="model2">Classic Series</SelectItem>
-                <SelectItem value="model3">Premium Line</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="serialNumber">Serial Number</Label>
-            <Input
-              id="serialNumber"
-              name="serialNumber"
-              value={formData.serialNumber}
-              onChange={handleChange}
-              className="w-full"
-              required
-            />
-          </div>
-          
-          <div className="space-y-2">
-            <Label htmlFor="memoNumber">Memo Number</Label>
-            <Input
-              id="memoNumber"
-              name="memoNumber"
-              value={formData.memoNumber}
-              onChange={handleChange}
-              className="w-full"
-              required
-            />
-          </div>
-        </div>
-        
-        <div className="flex justify-end space-x-4">
-          <Button 
-            variant="outline" 
-            type="button"
-            onClick={() => setFormData({
-              customerName: "",
-              phone: "",
-              email: "",
-              address: "",
-              product: "",
-              model: "",
-              serialNumber: "",
-              memoNumber: "",
-            })}
-          >
-            Clear
-          </Button>
-          <Button type="submit">Register Customer</Button>
-        </div>
-      </form>
-    </Card>
-  );
+                            <div className="space-y-2">
+                                <Label htmlFor="phone">Phone Number</Label>
+                                <Field as={Input} id="phone" name="phone" type="tel" className="w-full" />
+                                <ErrorMessage name="phone" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="email">Email Address</Label>
+                                <Field as={Input} id="email" name="email" type="email" className="w-full" />
+                                <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="address">Address</Label>
+                                <Field as={Input} id="address" name="address" className="w-full" />
+                                <ErrorMessage name="address" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Product</Label>
+                                <Select onValueChange={(value) => setFieldValue("product", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select product" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="helmet1">Sport Helmet X1</SelectItem>
+                                        <SelectItem value="helmet2">City Rider Pro</SelectItem>
+                                        <SelectItem value="helmet3">Adventure Elite</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <ErrorMessage name="product" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label>Model</Label>
+                                <Select onValueChange={(value) => setFieldValue("model", value)}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select model" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="model1">2023 Edition</SelectItem>
+                                        <SelectItem value="model2">Classic Series</SelectItem>
+                                        <SelectItem value="model3">Premium Line</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <ErrorMessage name="model" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="serialNumber">Serial Number</Label>
+                                <Field as={Input} id="serialNumber" name="serialNumber" className="w-full" />
+                                <ErrorMessage name="serialNumber" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="memoNumber">Memo Number</Label>
+                                <Field as={Input} id="memoNumber" name="memoNumber" className="w-full" />
+                                <ErrorMessage name="memoNumber" component="div" className="text-red-500 text-sm" />
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end space-x-4">
+                            <Button type="button" variant="outline" onClick={() => resetForm()}>
+                                Clear
+                            </Button>
+                            <Button type="submit">Register Customer</Button>
+                        </div>
+                    </Form>
+                )}
+            </Formik>
+        </Card>
+    );
 };
 
 export default CustomerForm;

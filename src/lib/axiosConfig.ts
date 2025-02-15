@@ -12,17 +12,17 @@ export const setCsrfToken = (): void => {
         withCredentials: true,
     })
         .get('/sanctum/csrf-cookie')
-        .then((response) => {
-            console.error(response);
+        .then(response => {
+            console.log("CSRF cookie set successfully");
         })
-        .catch((err: unknown) => {
-            console.error(err);
+        .catch(error => {
+            console.error("Error setting CSRF cookie:", error);
         });
 };
 
 // Axios instance with configuration
 const axiosConfig: AxiosInstance = axios.create({
-    baseURL: `${apiPath}`,
+    baseURL: `${apiPath}/api`,
 });
 
 // Set default headers
