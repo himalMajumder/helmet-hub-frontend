@@ -77,6 +77,9 @@ export const AppProvider = ({ children }: UserProviderProps) => {
         if (token) {
             fetchData();
         }
+        else{
+            setIsLoading(false);
+        }
 
     }, []);
 

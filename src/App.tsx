@@ -34,16 +34,17 @@ const App = () => {
 					<Routes>
 						<Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 						<Route path="/" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>} />
-						<Route path="/customers" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>} />
+						<Route path="/warranty-registration" element={<PrivateRoute><Layout><WarrantyRegistration /></Layout></PrivateRoute>} />
+						<Route path="/customer-information" element={<PrivateRoute><Layout><CustomerInformation /></Layout></PrivateRoute>} />
+
 						
+						<Route path="/customers" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>} />
 						<Route path="/products/add" element={<PrivateRoute><Layout><AddProduct /></Layout></PrivateRoute>} />
 						<Route path="/warranty-check" element={<PrivateRoute><Layout><WarrantyCheck /></Layout></PrivateRoute>} />
-						<Route path="/warranty-registration" element={<PrivateRoute><Layout><WarrantyRegistration /></Layout></PrivateRoute>} />
 						<Route path="/warranties" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>} />
 						<Route path="/settings" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>} />
 						<Route path="/settings/sms-api" element={<PrivateRoute><Layout><SmsApiIntegration /></Layout></PrivateRoute>} />
 						<Route path="/become-dealer" element={<PrivateRoute><Layout><BecomeDealer /></Layout></PrivateRoute>} />
-						<Route path="/customer-information" element={<PrivateRoute><Layout><CustomerInformation /></Layout></PrivateRoute>} />
 					</Routes>
 				</BrowserRouter>
 			</TooltipProvider>

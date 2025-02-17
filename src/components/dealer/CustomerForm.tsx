@@ -14,78 +14,104 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import axiosConfig from "@/lib/axiosConfig";
 import { useAppContext } from "@/contexts/AppContext";
+interface FormValues {
+    name: string;
+    phone: string;
+    email: string;
+    address: string;
+    product: string;
+    model: string;
+    serial_number: string;
+    memo_number: string;
+}
 
-const validationSchema = Yup.object().shape({
-    customerName: Yup.string().required("Customer Name is required"),
-    phone: Yup.string()
-        .matches(/^[0-9]+$/, "Phone must be only digits")
-        .min(10, "Phone must be at least 10 digits")
-        .required("Phone is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    address: Yup.string().required("Address is required"),
-    product: Yup.string().required("Product selection is required"),
-    model: Yup.string().required("Model selection is required"),
-    serialNumber: Yup.string().required("Serial Number is required"),
-    memoNumber: Yup.string().required("Memo Number is required"),
-});
 
 const CustomerForm = () => {
     const { toast } = useToast();
     const { authenticated_token } = useAppContext();
+    const initialValues: FormValues = {
+        name: "",
+        phone: "",
+        email: "",
+        address: "",
+        product: "",
+        model: "",
+        serial_number: "",
+        memo_number: "",
+    }
+
+    const validationSchema = Yup.object().shape({
+        name: Yup.string()
+            .required("Customer Name is required")
+            .min(3, "Name must be at least 3 characters"),
+        phone: Yup.string()
+            .matches(/^[0-9]+$/, "Phone must be only digits")
+            .min(10, "Phone must be at least 10 digits")
+            .required("Phone is required"),
+        email: Yup.string().email("Invalid email").required("Email is required"),
+        address: Yup.string().required("Address is required"),
+        product: Yup.string().required("Product selection is required"),
+        model: Yup.string().required("Model selection is required"),
+        serial_number: Yup.string().required("Serial Number is required"),
+        memo_number: Yup.string().required("Memo Number is required"),
+    });
+
+    const handleCustomerRegistration = async (values: FormValues, { setErrors, resetForm }: any) => {
+
+        try {
+            const response = await axiosConfig({
+                method: "post",
+                data: values,
+                url: "customer/registration",
+                headers: {
+                    Authorization: `Bearer ${authenticated_token}`,
+                }
+            })
+
+            if (response.status === 200) {
+                toast({
+                    title: "Success",
+                    description: "Customer registered successfully",
+                });
+                resetForm();
+            }
+        } catch (error) {
+            if (error.response && error.response.status === 422) {
+                let errors = error.response.data.errors;
+                let formikErrors: Record<string, string> = {};
+                for (let key in errors) {
+                    formikErrors[key] = errors[key];
+                }
+
+                setErrors(formikErrors);
+
+                toast({
+                    title: "Error",
+                    description: "Failed to register customer. Please try again.",
+                    variant: "destructive",
+                });
+            } 
+        }
+    }
+
+
 
     return (
         <Card className="p-6 glass-card">
             <h2 className="text-2xl font-semibold mb-6">New Customer Registration</h2>
 
             <Formik
-                initialValues={{
-                    customerName: "",
-                    phone: "",
-                    email: "",
-                    address: "",
-                    product: "",
-                    model: "",
-                    serialNumber: "",
-                    memoNumber: "",
-                }}
+                initialValues={initialValues}
                 validationSchema={validationSchema}
-                onSubmit={async (values, { resetForm }) => {
-                    try {
-                        console.log("Form submitted:", values);
-
-                        let response = await axiosConfig({
-                            method: "post",
-                            data: values,
-                            url: "customer",
-                            headers: {
-                                Authorization: `Bearer ${authenticated_token}`,
-                            }
-                        })
-
-                        if (response.status === 200) {
-                            toast({
-                                title: "Success",
-                                description: "Customer registered successfully",
-                            });
-                            resetForm();
-                        }
-                    } catch (error) {
-                        toast({
-                            title: "Error",
-                            description: "Failed to register customer. Please try again.",
-                            variant: "destructive",
-                        });
-                        console.error("Error submitting form:", error);
-                    }
-                }}
+                onSubmit={handleCustomerRegistration}
             >
                 {({ setFieldValue, resetForm }) => (
                     <Form className="space-y-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <Label htmlFor="customerName">Customer Name</Label>
-                                <Field as={Input} id="customerName" name="customerName" className="w-full" />
-                                <ErrorMessage name="customerName" component="div" className="text-red-500 text-sm" />
+                                <Label htmlFor="name">Customer Name</Label>
+                                <Field as={Input} id="name" name="name" className="w-full" />
+                                <ErrorMessage name="name" component="div" className="text-red-500 text-sm" />
                             </div>
 
                             <div className="space-y-2">
@@ -137,15 +163,15 @@ const CustomerForm = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="serialNumber">Serial Number</Label>
-                                <Field as={Input} id="serialNumber" name="serialNumber" className="w-full" />
-                                <ErrorMessage name="serialNumber" component="div" className="text-red-500 text-sm" />
+                                <Label htmlFor="serial_number">Serial Number</Label>
+                                <Field as={Input} id="serial_number" name="serial_number" className="w-full" />
+                                <ErrorMessage name="serial_number" component="div" className="text-red-500 text-sm" />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="memoNumber">Memo Number</Label>
-                                <Field as={Input} id="memoNumber" name="memoNumber" className="w-full" />
-                                <ErrorMessage name="memoNumber" component="div" className="text-red-500 text-sm" />
+                                <Label htmlFor="memo_number">Memo Number</Label>
+                                <Field as={Input} id="memo_number" name="memo_number" className="w-full" />
+                                <ErrorMessage name="memo_number" component="div" className="text-red-500 text-sm" />
                             </div>
                         </div>
 
