@@ -14,14 +14,21 @@ import CustomerInformation from "./pages/CustomerInformation";
 import WarrantyRegistration from "./pages/WarrantyRegistration";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
+import ModelList from "./pages/ModelList";
+import ModelCreate from "./pages/ModelCreate";
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 
 const queryClient = new QueryClient({
 	defaultOptions: {
 		queries: {
-			staleTime: 5 * 60 * 1000,
-			refetchOnWindowFocus: false,
-		},
-	},
+            retry: 0,
+            refetchOnWindowFocus: false,
+            gcTime: 5 * 60 * 1000,
+        },
+        mutations: {
+            retry: false, // Disable retry for mutations
+        } 
+	} 
 });
 
 const App = () => {
@@ -36,6 +43,8 @@ const App = () => {
 						<Route path="/" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>} />
 						<Route path="/warranty-registration" element={<PrivateRoute><Layout><WarrantyRegistration /></Layout></PrivateRoute>} />
 						<Route path="/customer-information" element={<PrivateRoute><Layout><CustomerInformation /></Layout></PrivateRoute>} />
+						<Route path="/model" element={<PrivateRoute><Layout><ModelList /></Layout></PrivateRoute>} />
+						<Route path="/model/create" element={<PrivateRoute><Layout><ModelCreate /></Layout></PrivateRoute>} />
 
 						
 						<Route path="/customers" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>} />
@@ -48,6 +57,8 @@ const App = () => {
 					</Routes>
 				</BrowserRouter>
 			</TooltipProvider>
+			<ReactQueryDevtools initialIsOpen={false} />
+
 		</QueryClientProvider>
 	);
 };

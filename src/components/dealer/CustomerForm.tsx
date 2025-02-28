@@ -10,10 +10,11 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import axiosConfig from "@/lib/axiosConfig";
 import { useAppContext } from "@/contexts/AppContext";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 interface FormValues {
     name: string;
     phone: string;
@@ -29,6 +30,8 @@ interface FormValues {
 const CustomerForm = () => {
     const { toast } = useToast();
     const { authenticated_token } = useAppContext();
+    const queryClient = useQueryClient();
+
     const initialValues: FormValues = {
         name: "",
         phone: "",
@@ -56,44 +59,92 @@ const CustomerForm = () => {
         memo_number: Yup.string().required("Memo Number is required"),
     });
 
-    const handleCustomerRegistration = async (values: FormValues, { setErrors, resetForm }: any) => {
+    // Handle general errors
+    const handleGeneralError = (error: any) => {
+        toast({
+            title: "Error",
+            description: error.message || "Failed to create customer registration",
+            variant: "destructive",
+        });
+    };
 
-        try {
-            const response = await axiosConfig({
-                method: "post",
-                data: values,
-                url: "customer/registration",
-                headers: {
-                    Authorization: `Bearer ${authenticated_token}`,
-                }
-            })
+    // Handle successful submission
+    const handleSuccess = () => {
+        toast({
+            title: "Success",
+            description: "Customer Registration created successfully",
+        });
+    };
 
-            if (response.status === 200) {
-                toast({
-                    title: "Success",
-                    description: "Customer registered successfully",
-                });
-                resetForm();
-            }
-        } catch (error) {
-            if (error.response && error.response.status === 422) {
-                let errors = error.response.data.errors;
-                let formikErrors: Record<string, string> = {};
-                for (let key in errors) {
-                    formikErrors[key] = errors[key];
-                }
+    // Handle API validation errors
+    const handleValidationErrors = (
+        error: any,
+        setErrors: FormikHelpers<FormValues>['setErrors']
+    ) => {
+        if (error.response?.status === 422) {
+            const apiErrors = error.response.data.errors;
+            const formErrors: Record<string, string> = {};
 
-                setErrors(formikErrors);
+            Object.entries(apiErrors).forEach(([key, value]) => {
+                formErrors[key] = Array.isArray(value) ? value[0] : value as string;
+            });
 
-                toast({
-                    title: "Error",
-                    description: "Failed to register customer. Please try again.",
-                    variant: "destructive",
-                });
-            } 
+            setErrors(formErrors);
+
+            toast({
+                title: "Validation Error",
+                description: "Please check the form for errors",
+                variant: "destructive",
+            });
         }
-    }
+    };
 
+
+    // API call function
+    const createCustomerRegistration = async (values: FormValues, token: string) => {
+        if (!token) {
+            throw new Error("Missing authentication token");
+        }
+
+        const response = await axiosConfig({
+            method: "post",
+            data: values,
+            url: "customer/registration",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+
+        return response.data;
+    };
+
+    // Mutation setup
+    const mutation = useMutation({
+        mutationKey: ["createCustomerRegistration"],
+        mutationFn: (values: FormValues) => createCustomerRegistration(values, authenticated_token),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["customers"] });
+        }
+    });
+
+
+    // Form submission handler
+    const handleSubmit = async (
+        values: FormValues,
+        { setErrors, resetForm }: FormikHelpers<FormValues>
+    ) => {
+        try {
+            await mutation.mutateAsync(values);
+            handleSuccess();
+            resetForm();
+        } catch (error: any) {
+            if (error.response?.status === 422) {
+                handleValidationErrors(error, setErrors);
+            } else {
+                handleGeneralError(error);
+            }
+        }
+    };
 
 
     return (
@@ -103,7 +154,7 @@ const CustomerForm = () => {
             <Formik
                 initialValues={initialValues}
                 validationSchema={validationSchema}
-                onSubmit={handleCustomerRegistration}
+                onSubmit={handleSubmit}
             >
                 {({ setFieldValue, resetForm }) => (
                     <Form className="space-y-6">
