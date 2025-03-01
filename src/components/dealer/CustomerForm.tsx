@@ -14,7 +14,11 @@ import { Formik, Form, Field, ErrorMessage, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import axiosConfig from "@/lib/axiosConfig";
 import { useAppContext } from "@/contexts/AppContext";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import AsyncSelect from "react-select/async";
+import { useState } from "react";
+import { BikeModel } from "@/lib/types";
+
 interface FormValues {
     name: string;
     phone: string;
@@ -27,10 +31,62 @@ interface FormValues {
 }
 
 
+
+
+// Fetch function for react-query
+const fetchBikeModels = async (authenticated_token: string) => {
+    try {
+        const response = await axiosConfig({
+            method: "get",
+            url: "bike-model",
+            headers: {
+                Authorization: `Bearer ${authenticated_token}`,
+            }
+        });
+
+        if (response.status !== 200) {
+            throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
+        }
+
+        return response.data.data.bikeModels;
+    } catch (error) {
+        console.error("Error fetching bike models:", error);
+        throw new Error(error.response?.data?.message || "Failed to fetch bike models");
+    }
+
+};
+
+
 const CustomerForm = () => {
     const { toast } = useToast();
     const { authenticated_token } = useAppContext();
     const queryClient = useQueryClient();
+    const [selectedOption, setSelectedOption] = useState(null);
+
+    // Fetch options from the server
+    const loadOptions = async (inputValue) => {
+        if (!inputValue) return [];
+
+        try {
+            const response = await axiosConfig({
+                method: "get",
+                url: "bike-model/search",
+                headers: {
+                    Authorization: `Bearer ${authenticated_token}`,
+                },
+                params: {
+                    search: inputValue,
+                },
+            });
+            return response.data.data.map((item: BikeModel) => ({
+                value: item.uuid,
+                label: item.name,
+            }));
+        } catch (error) {
+            console.error("Error fetching options:", error);
+            return [];
+        }
+    };
 
     const initialValues: FormValues = {
         name: "",
@@ -197,8 +253,25 @@ const CustomerForm = () => {
                                 </Select>
                                 <ErrorMessage name="product" component="div" className="text-red-500 text-sm" />
                             </div>
-
                             <div className="space-y-2">
+                                <Label>Model</Label>
+                                <AsyncSelect
+                                    cacheOptions
+                                    loadOptions={loadOptions}
+                                    defaultOptions
+                                    isClearable
+                                    onChange={(selectedOption) => {
+                                        setFieldValue("model", selectedOption.label);
+                                        setSelectedOption(selectedOption);
+                                    }}
+
+                                    placeholder="Search..."
+                                    value={selectedOption}
+                                />
+                                <ErrorMessage name="model" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            {/* <div className="space-y-2">
                                 <Label>Model</Label>
                                 <Select onValueChange={(value) => setFieldValue("model", value)}>
                                     <SelectTrigger>
@@ -211,7 +284,7 @@ const CustomerForm = () => {
                                     </SelectContent>
                                 </Select>
                                 <ErrorMessage name="model" component="div" className="text-red-500 text-sm" />
-                            </div>
+                            </div> */}
 
                             <div className="space-y-2">
                                 <Label htmlFor="serial_number">Serial Number</Label>

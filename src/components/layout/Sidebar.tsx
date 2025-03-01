@@ -42,7 +42,7 @@ const Sidebar = () => {
         { icon: FileText, label: "Register Warranty", path: "/warranty-registration" },
         { icon: Users, label: "Customers", path: "/customers" },
         { icon: UserCircle, label: "Customer Information", path: "/customer-information" },
-        { icon: FileBox, label: "Model", path: "/model" },
+        { icon: FileBox, label: "Models", path: "/models" },
         {
             icon: Settings,
             label: "Settings",

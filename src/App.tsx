@@ -17,6 +17,7 @@ import PublicRoute from "./components/PublicRoute";
 import ModelList from "./pages/ModelList";
 import ModelCreate from "./pages/ModelCreate";
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import ModelEdit from "./pages/ModelEdit";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -43,8 +44,11 @@ const App = () => {
 						<Route path="/" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>} />
 						<Route path="/warranty-registration" element={<PrivateRoute><Layout><WarrantyRegistration /></Layout></PrivateRoute>} />
 						<Route path="/customer-information" element={<PrivateRoute><Layout><CustomerInformation /></Layout></PrivateRoute>} />
-						<Route path="/model" element={<PrivateRoute><Layout><ModelList /></Layout></PrivateRoute>} />
-						<Route path="/model/create" element={<PrivateRoute><Layout><ModelCreate /></Layout></PrivateRoute>} />
+						<Route path="/models" element={<PrivateRoute><Layout><ModelList /></Layout></PrivateRoute>} />
+						<Route path="/models/create" element={<PrivateRoute><Layout><ModelCreate /></Layout></PrivateRoute>} />
+						<Route path="/models/edit/:uuid" element={<PrivateRoute><Layout><ModelEdit /></Layout></PrivateRoute>} />
+
+
 
 						
 						<Route path="/customers" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>} />
