@@ -17,7 +17,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import AsyncSelect from "react-select/async";
 import { useState } from "react";
-import { BikeModel } from "@/lib/types";
+import { BikeModelType } from "@/lib/types";
 
 interface FormValues {
     name: string;
@@ -78,7 +78,7 @@ const CustomerForm = () => {
                     search: inputValue,
                 },
             });
-            return response.data.data.map((item: BikeModel) => ({
+            return response.data.data.map((item: BikeModelType) => ({
                 value: item.uuid,
                 label: item.name,
             }));

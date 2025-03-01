@@ -18,6 +18,12 @@ import ModelList from "./pages/ModelList";
 import ModelCreate from "./pages/ModelCreate";
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import ModelEdit from "./pages/ModelEdit";
+import UsersList from "./pages/UsersList";
+import UserCreate from "./pages/UserCreate";
+import UserEdit from "./pages/UserEdit";
+import RolesList from "./pages/RolesList";
+import RoleCreate from "./pages/RoleCreate";
+import RoleEdit from "./pages/RoleEdit";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -44,9 +50,21 @@ const App = () => {
 						<Route path="/" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>} />
 						<Route path="/warranty-registration" element={<PrivateRoute><Layout><WarrantyRegistration /></Layout></PrivateRoute>} />
 						<Route path="/customer-information" element={<PrivateRoute><Layout><CustomerInformation /></Layout></PrivateRoute>} />
+
+						{/* Models Routes */}
 						<Route path="/models" element={<PrivateRoute><Layout><ModelList /></Layout></PrivateRoute>} />
 						<Route path="/models/create" element={<PrivateRoute><Layout><ModelCreate /></Layout></PrivateRoute>} />
 						<Route path="/models/edit/:uuid" element={<PrivateRoute><Layout><ModelEdit /></Layout></PrivateRoute>} />
+						
+						{/* Users Routes */}
+						<Route path="/users" element={<PrivateRoute><Layout><UsersList /></Layout></PrivateRoute>} />
+						<Route path="/users/create" element={<PrivateRoute><Layout><UserCreate /></Layout></PrivateRoute>} />
+						<Route path="/users/edit/:uuid" element={<PrivateRoute><Layout><UserEdit /></Layout></PrivateRoute>} />
+
+						{/* Roles Routes */}
+						<Route path="/roles" element={<PrivateRoute><Layout><RolesList /></Layout></PrivateRoute>} />
+						<Route path="/roles/create" element={<PrivateRoute><Layout><RoleCreate /></Layout></PrivateRoute>} />
+						<Route path="/roles/edit/:id" element={<PrivateRoute><Layout><RoleEdit /></Layout></PrivateRoute>} />
 
 
 

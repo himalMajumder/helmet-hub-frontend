@@ -28,8 +28,8 @@ const Sidebar = () => {
         setIsAuthenticated,
         authenticated_token,
         setAuthenticatedToken,
-        user,
-        setUser,
+        authenticatedUser,
+        setAuthenticatedUser,
         set_authentication,
         set_authentication_token
     } = useAppContext();
@@ -48,8 +48,8 @@ const Sidebar = () => {
             label: "Settings",
             path: "/settings",
             subItems: [
-                { icon: UserCog, label: "User Management", path: "/settings/users" },
-                { icon: Shield, label: "Role Management", path: "/settings/roles" },
+                { icon: UserCog, label: "User Management", path: "/users" },
+                { icon: Shield, label: "Role Management", path: "/roles" },
                 { icon: MessageSquare, label: "SMS API Integration", path: "/settings/sms-api" }
             ]
         },
@@ -72,7 +72,7 @@ const Sidebar = () => {
 
                 set_authentication(false);
                 set_authentication_token('');
-                setUser(null);
+                setAuthenticatedUser(null);
                 navigate("/login");
             })
             .catch((error) => {

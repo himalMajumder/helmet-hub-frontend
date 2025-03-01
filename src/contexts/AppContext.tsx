@@ -2,19 +2,15 @@ import axiosConfig, { setCsrfToken } from "@/lib/axiosConfig";
 import axios from "axios";
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
-export type User = {
-    name: string,
-    email: string,
-}
+import {TokenType, UserType} from "@/lib/types";
 
 interface AppState {
-    user: User | null;
+    authenticatedUser: UserType | null;
     is_authenticated: boolean;
     setIsAuthenticated: (isAuthenticated: boolean) => void;
-    authenticated_token: string | null;
+    authenticated_token: TokenType;
     setAuthenticatedToken: (token: string | null) => void;
-    setUser: (user: User | null) => void;
+    setAuthenticatedUser: (user: UserType | null) => void;
     set_authentication: (isAuthenticated: boolean) => void;
     set_authentication_token: (token: string | null) => void;
 }
@@ -29,7 +25,7 @@ export const AppProvider = ({ children }: UserProviderProps) => {
 
     const [is_authenticated, setIsAuthenticated] = useState(false);
     const [authenticated_token, setAuthenticatedToken] = useState(null);
-    const [user, setUser] = useState<User>(null);
+    const [authenticatedUser, setAuthenticatedUser] = useState<UserType>(null);
     const [isLoading, setIsLoading] = useState(true); // Add a loading state
 
 
@@ -58,15 +54,12 @@ export const AppProvider = ({ children }: UserProviderProps) => {
                 set_authentication_token(token);
                 let data = response.data.data;
                  
-                setUser({
-                    name : data.name,
-                    email: data.email
-                });
+                setAuthenticatedUser(data);
 
             } catch (error) {
                 set_authentication(false);
                 set_authentication_token('');
-                setUser(null);
+                setAuthenticatedUser(null);
                 console.error("Error fetching data:", error);
             } finally {
                 setIsLoading(false); // Set loading to false after the check is complete
@@ -95,8 +88,8 @@ export const AppProvider = ({ children }: UserProviderProps) => {
             setIsAuthenticated,
             authenticated_token,
             setAuthenticatedToken,
-            user,
-            setUser,
+            authenticatedUser,
+            setAuthenticatedUser,
             set_authentication,
             set_authentication_token
         }}>

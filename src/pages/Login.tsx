@@ -10,6 +10,7 @@ import * as Yup from "yup";
 import { useState } from "react";
 import axiosConfig from "@/lib/axiosConfig";
 import { useAppContext } from "@/contexts/AppContext";
+import { TokenType, UserType } from "@/lib/types";
 
 const Login = () => {
     const {
@@ -17,8 +18,8 @@ const Login = () => {
         setIsAuthenticated,
         authenticated_token,
         setAuthenticatedToken,
-        user,
-        setUser,
+        authenticatedUser,
+        setAuthenticatedUser,
         set_authentication,
         set_authentication_token
     } = useAppContext();
@@ -56,10 +57,12 @@ const Login = () => {
             .then((response) => {
                 let data = response.data.data;
 
-                let token = data.token;
+                let token: TokenType = data.token;
+                let user: UserType = data.user;
 
                 set_authentication(true);
                 set_authentication_token(token);
+                setAuthenticatedUser(user);
                 toast({
                     title: "Success",
                     description: "Logged in successfully!",
@@ -89,7 +92,7 @@ const Login = () => {
 
                 set_authentication(false);
                 set_authentication_token(null);
-
+                setAuthenticatedUser(null);
             });
 
     };

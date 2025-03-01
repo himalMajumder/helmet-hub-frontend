@@ -16,15 +16,22 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axiosConfig from "@/lib/axiosConfig";
 import { useAppContext } from "@/contexts/AppContext";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
-import {BikeModelType} from "@/lib/types";
+import { useEffect, useState } from "react";
+import { UserType } from "@/lib/types";
 
 // Fetch function for react-query
-const fetchBikeModels = async (authenticated_token: string) => {
+const fetchUsers = async (authenticated_token: string, search?: string) => {
     try {
+        const params: Record<string, string> = {};
+
+        if (search) {
+            params.search = search; // Only include 'search' if not empty
+        }
+
         const response = await axiosConfig({
             method: "get",
-            url: "/bike-models",
+            url: "/users",
+            params,
             headers: {
                 Authorization: `Bearer ${authenticated_token}`,
             }
@@ -34,28 +41,36 @@ const fetchBikeModels = async (authenticated_token: string) => {
             throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
         }
 
-        return response.data.data.bikeModels;
+        return response.data.data;
     } catch (error) {
-        console.error("Error fetching bike models:", error);
-        throw new Error(error.response?.data?.message || "Failed to fetch bike models");
+        console.error("Error fetching users:", error);
+        throw new Error(error.response?.data?.message || "Failed to fetch users");
     }
 
 };
 
-const ModelList = () => {
+const UsersList = () => {
     const navigate = useNavigate();
-    const { authenticated_token } = useAppContext();
+    const { authenticated_token, authenticatedUser } = useAppContext();
     const { toast } = useToast();
     const queryClient = useQueryClient();
+    const [searchQuery, setSearchQuery] = useState<string>("");
+    const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
 
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedSearch(searchQuery);
+        }, 500);
+        return () => clearTimeout(handler);
+    }, [searchQuery]);
 
     /**
-     * Query to fetch bike models
+     * Query to fetch users
      */
-    const { data: bikeModels = [], error, isError, refetch } = useQuery({
-        queryKey: ["bikeModels"],
+    const { data: users = [], error, isError, refetch } = useQuery({
+        queryKey: debouncedSearch ? ["users", debouncedSearch] : ["users"],
         queryFn: () => {
-            return fetchBikeModels(authenticated_token);
+            return fetchUsers(authenticated_token, debouncedSearch);
         },
         enabled: !!authenticated_token,
         staleTime: 1000 * 60 * 5,
@@ -79,21 +94,21 @@ const ModelList = () => {
     }, [isError, error, toast]);
 
     /**
-     * Mutation to delete a bike model
+     * Mutation to delete a user
      */
-    const deleteBikeModelMutation = useMutation({
-        mutationKey: ["deleteBikeModel"],
+    const deleteUserMutation = useMutation({
+        mutationKey: ["deleteRole"],
         mutationFn: async (uuid: string) => {
             const response = await axiosConfig({
                 method: "delete",
-                url: `/bike-models/${uuid}`,
+                url: `/users/${uuid}`,
                 headers: {
                     Authorization: `Bearer ${authenticated_token}`,
                 }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || "Failed to delete bike model");
+                throw new Error(response.data.message || "Failed to delete user");
             }
 
             return response.data;
@@ -101,9 +116,9 @@ const ModelList = () => {
         onSuccess: (data) => {
             toast({
                 title: "Success",
-                description: data.message || "Bike model deleted successfully",
+                description: data.message || "user deleted successfully",
             });
-            queryClient.invalidateQueries({ queryKey: ["bikeModels"] });
+            queryClient.invalidateQueries({ queryKey: ["users"] });
         }
     });
 
@@ -112,8 +127,8 @@ const ModelList = () => {
      * @param uuid 
      */
     const handleDelete = async (uuid: string) => {
-        if (window.confirm("Are you sure you want to delete this bike model?")) {
-            deleteBikeModelMutation.mutateAsync(uuid).catch((error) => {
+        if (window.confirm("Are you sure you want to delete this user?")) {
+            deleteUserMutation.mutateAsync(uuid).catch((error) => {
                 toast({
                     title: "Error",
                     description: error instanceof Error ? error.message : "Something went wrong",
@@ -123,21 +138,21 @@ const ModelList = () => {
     };
 
     /**
-     * Mutation to inactive a bike model
+     * Mutation to inactive a user
      */
-    const inactiveBikeModelMutation = useMutation({
+    const inactiveUserMutation = useMutation({
         mutationKey: ["suspendBikeModel"],
         mutationFn: async (uuid: string) => {
             const response = await axiosConfig({
                 method: "put",
-                url: `/bike-models/${uuid}/suspend`,
+                url: `/users/${uuid}/suspend`,
                 headers: {
                     Authorization: `Bearer ${authenticated_token}`,
                 }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || "Failed to inactive bike model");
+                throw new Error(response.data.message || "Failed to inactive user");
             }
 
             return response.data;
@@ -145,9 +160,9 @@ const ModelList = () => {
         onSuccess: (data) => {
             toast({
                 title: "Success",
-                description: data.message || "Bike model inactive successfully",
+                description: data.message || "user inactive successfully",
             });
-            queryClient.invalidateQueries({ queryKey: ["bikeModels"] });
+            queryClient.invalidateQueries({ queryKey: ["users"] });
         }
     });
 
@@ -156,8 +171,8 @@ const ModelList = () => {
      * @param uuid 
      */
     const handleInactive = async (uuid: string) => {
-        if (window.confirm("Are you sure you want to inactive this bike model?")) {
-            inactiveBikeModelMutation.mutateAsync(uuid).catch((error) => {
+        if (window.confirm("Are you sure you want to inactive this user?")) {
+            inactiveUserMutation.mutateAsync(uuid).catch((error) => {
                 toast({
                     title: "Error",
                     description: error instanceof Error ? error.message : "Something went wrong",
@@ -167,21 +182,21 @@ const ModelList = () => {
     };
 
     /**
-     * Mutation to active a bike model
+     * Mutation to active a user
      */
-    const activeBikeModelMutation = useMutation({
+    const activeUserMutation = useMutation({
         mutationKey: ["activateBikeModel"],
         mutationFn: async (uuid: string) => {
             const response = await axiosConfig({
                 method: "put",
-                url: `/bike-models/${uuid}/activate`,
+                url: `/users/${uuid}/activate`,
                 headers: {
                     Authorization: `Bearer ${authenticated_token}`,
                 }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || "Failed to activate bike model");
+                throw new Error(response.data.message || "Failed to activate user");
             }
 
             return response.data;
@@ -189,19 +204,19 @@ const ModelList = () => {
         onSuccess: (data) => {
             toast({
                 title: "Success",
-                description: data.message || "Bike model activate successfully",
+                description: data.message || "user activate successfully",
             });
-            queryClient.invalidateQueries({ queryKey: ["bikeModels"] });
+            queryClient.invalidateQueries({ queryKey: ["users"] });
         }
     });
 
-     /**
-     * Handle active
-     * @param uuid 
-     */
+    /**
+    * Handle active
+    * @param uuid 
+    */
     const handleActive = async (uuid: string) => {
-        if (window.confirm("Are you sure you want to inactive this bike model?")) {
-            activeBikeModelMutation.mutateAsync(uuid).catch((error) => {
+        if (window.confirm("Are you sure you want to inactive this user?")) {
+            activeUserMutation.mutateAsync(uuid).catch((error) => {
                 toast({
                     title: "Error",
                     description: error instanceof Error ? error.message : "Something went wrong",
@@ -213,15 +228,16 @@ const ModelList = () => {
     return (
         <>
             <div className="flex justify-end space-x-4 p-5">
-                <Button type="button" onClick={() => navigate("/models/create")} variant="default">Create Model</Button>
+                <Button type="button" onClick={() => navigate("/users/create")} variant="default">Create User</Button>
             </div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-                <h1 className="text-2xl md:text-3xl font-bold">Model List</h1>
+                <h1 className="text-2xl md:text-3xl font-bold">User List</h1>
                 <div className="relative w-full md:w-auto">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                     <Input
-                        placeholder="Search Bike Models..."
+                        placeholder="Search Users..."
                         className="pl-10 w-full md:w-[300px]"
+                        onChange={(e) => setSearchQuery(e.target.value)}
                     />
                 </div>
             </div>
@@ -237,59 +253,62 @@ const ModelList = () => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {bikeModels.length > 0 ? (
-                                bikeModels.map((bikeModel: BikeModelType) => (
-                                    <TableRow key={bikeModel.uuid}>
-                                        <TableCell>{bikeModel.name}</TableCell>
-                                        <TableCell>{bikeModel.detail}</TableCell>
+                            {users && users.length > 0 ? (
+                                users.map((user: UserType) => (
+                                    <TableRow key={user.uuid}>
+                                        <TableCell>{user.name}</TableCell>
+                                        <TableCell>{user.email}</TableCell>
                                         <TableCell>
-                                            {bikeModel.status === "Active" && (
+                                            {user.status === "Active" && (
                                                 <Badge variant="default" className="bg-green-500 hover:bg-green-600">Active</Badge>
                                             )}
-                                            {bikeModel.status === "Inactive" && (
+                                            {user.status === "Inactive" && (
                                                 <Badge variant="destructive" className="bg-yellow-500 hover:bg-yellow-600">Inactive</Badge>
                                             )}
                                         </TableCell>
                                         <TableCell className="space-x-2">
-                                            {bikeModel.status === "Active" && (
+                                            {user.uuid !== authenticatedUser.uuid && user.status === "Active" && (
                                                 <Button
                                                     variant="default"
                                                     size="sm"
                                                     className="bg-yellow-500 hover:bg-yellow-600"
-                                                    onClick={() => handleInactive(bikeModel.uuid)}
-                                                    disabled={inactiveBikeModelMutation.isPending}
+                                                    onClick={() => handleInactive(user.uuid)}
+                                                    disabled={inactiveUserMutation.isPending}
                                                 >
-                                                    {inactiveBikeModelMutation.isPending ? "Inactivating..." : "Inactive"}
+                                                    {inactiveUserMutation.isPending ? "Inactivating..." : "Inactive"}
                                                 </Button>
                                             )}
-                                            {bikeModel.status === "Inactive" && (
+                                            {user.uuid !== authenticatedUser.uuid && user.status === "Inactive" && (
                                                 <Button
                                                     variant="default"
                                                     size="sm"
                                                     className="bg-green-500 hover:bg-green-600"
-                                                    onClick={() => handleActive(bikeModel.uuid)}
-                                                    disabled={activeBikeModelMutation.isPending}
+                                                    onClick={() => handleActive(user.uuid)}
+                                                    disabled={activeUserMutation.isPending}
                                                 >
-                                                    {activeBikeModelMutation.isPending ? "Activating..." : "Active"}
+                                                    {activeUserMutation.isPending ? "Activating..." : "Active"}
                                                 </Button>
                                             )}
 
-                                            <Button variant="default" size="sm" onClick={() => navigate(`/models/edit/${bikeModel.uuid}`)}>Edit</Button>
-                                            <Button
-                                                variant="destructive"
-                                                size="sm"
-                                                onClick={() => handleDelete(bikeModel.uuid)}
-                                                disabled={deleteBikeModelMutation.isPending}
-                                            >
-                                                {deleteBikeModelMutation.isPending ? "Deleting..." : "Delete"}
-                                            </Button>
+                                            <Button variant="default" size="sm" onClick={() => navigate(`/users/edit/${user.uuid}`)}>Edit</Button>
+
+                                            {user.uuid !== authenticatedUser.uuid && (
+                                                <Button
+                                                    variant="destructive"
+                                                    size="sm"
+                                                    onClick={() => handleDelete(user.uuid)}
+                                                    disabled={deleteUserMutation.isPending}
+                                                >
+                                                    {deleteUserMutation.isPending ? "Deleting..." : "Delete"}
+                                                </Button>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={4} className="text-center text-gray-500">
-                                        No bike models found.
+                                        No users found.
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -301,4 +320,4 @@ const ModelList = () => {
     );
 };
 
-export default ModelList;
+export default UsersList;

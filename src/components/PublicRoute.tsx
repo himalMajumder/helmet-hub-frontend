@@ -9,7 +9,7 @@ interface PublicRouteProps {
 }
 
 const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
-    const { is_authenticated, user, authenticated_token } = useAppContext();
+    const { is_authenticated, authenticatedUser, authenticated_token } = useAppContext();
     return is_authenticated ? <Navigate to="/" /> : <>{children}</>;
 };
 
