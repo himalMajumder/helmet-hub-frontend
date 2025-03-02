@@ -9,14 +9,17 @@ import axiosConfig from "@/lib/axiosConfig";
 import { useAppContext } from "@/contexts/AppContext";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
+import { RoleType, UserType } from "@/lib/types";
+import Select from "react-select";
 
 interface FormValues {
     name: string;
     email: string;
     password: string;
+    role: { label: string; value: number }[];
 }
 
-const fetchBikeModel = async (uuid: string, token: string) => {
+const fetchUser = async (uuid: string, token: string) => {
     const response = await axiosConfig.get(`/users/${uuid}`, {
         headers: { Authorization: `Bearer ${token}` },
     });
@@ -31,7 +34,10 @@ const saveUser = async ({ uuid, values, token }: { uuid?: string; values: FormVa
     const response = await axiosConfig({
         method,
         url,
-        data: values,
+        data: {
+            ...values,
+            role: values.role.map((r) => r.value),
+        },
         headers: {
             Authorization: `Bearer ${token}`,
         },
@@ -44,23 +50,39 @@ const UserForm = () => {
     const { uuid } = useParams();
     const navigate = useNavigate();
     const { toast } = useToast();
-    const { authenticated_token} = useAppContext();
+    const { authenticated_token } = useAppContext();
     const queryClient = useQueryClient();
 
-    // Fetch bike model data if editing
-    const { data: user, isLoading } = useQuery({
+    // Fetch user data if editing
+    const { data: user, isLoading } = useQuery<UserType>({
         queryKey: ["user", uuid],
-        queryFn: () => fetchBikeModel(uuid!, authenticated_token),
+        queryFn: () => fetchUser(uuid!, authenticated_token),
         enabled: !!authenticated_token && !!uuid,
     });
+ 
 
+    // Fetch roles
+    const { data: roles = [] } = useQuery<RoleType[]>({
+        queryKey: ["roles"],
+        queryFn: async () => {
+            const response = await axiosConfig.get(`/roles`, {
+                headers: { Authorization: `Bearer ${authenticated_token}` },
+            });
+            return response.data.data;
+        },
+        enabled: !!authenticated_token,
+    });
 
+    const roleOptions = roles.map((role) => ({
+        label: role.name,
+        value: role.id,
+    }));
 
-    // Form Initial Values
     const initialValues: FormValues = {
         name: user?.name || "",
         email: user?.email || "",
         password: "",
+        role: user?.roles ? roleOptions.filter((option) => user.roles.some((r) => r.id === option.value)) : [],
     };
 
     // Validation Schema
@@ -101,7 +123,7 @@ const UserForm = () => {
                 const apiErrors = error.response.data.errors;
                 const formErrors: Record<string, string> = {};
                 Object.entries(apiErrors).forEach(([key, value]) => {
-                    formErrors[key] = Array.isArray(value) ? value[0] : value as string;
+                    formErrors[key] = Array.isArray(value) ? value[0] : (value as string);
                 });
                 setErrors(formErrors);
             }
@@ -114,11 +136,11 @@ const UserForm = () => {
         <Card className="p-6 glass-card">
             <Formik
                 initialValues={initialValues}
-                enableReinitialize // Important to update form when data loads
+                enableReinitialize
                 validationSchema={validationSchema}
                 onSubmit={handleSubmit}
             >
-                {({ resetForm }) => (
+                {({ values, setFieldValue, resetForm }) => (
                     <Form className="space-y-6">
                         <div className="grid grid-cols-1 gap-6">
                             <div className="space-y-2">
@@ -132,10 +154,24 @@ const UserForm = () => {
                                 <Field as={Input} id="email" name="email" className="w-full" />
                                 <ErrorMessage name="email" component="div" className="text-red-500 text-sm" />
                             </div>
+
                             <div className="space-y-2">
                                 <Label htmlFor="password">Password</Label>
                                 <Field as={Input} id="password" name="password" type="password" placeholder="Example:123456" className="w-full" />
                                 <ErrorMessage name="password" component="div" className="text-red-500 text-sm" />
+                            </div>
+
+                            <div className="space-y-2">
+                                <Label htmlFor="role">Role</Label>
+                                <Select
+                                    id="role"
+                                    options={roleOptions}
+                                    isMulti // ✅ Allow multiple role selection
+                                    value={values.role} // ✅ Corrected value binding
+                                    onChange={(selectedOptions) => setFieldValue("role", selectedOptions)}
+                                    className="w-full"
+                                />
+                                <ErrorMessage name="role" component="div" className="text-red-500 text-sm" />
                             </div>
                         </div>
 

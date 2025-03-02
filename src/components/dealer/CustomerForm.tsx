@@ -264,7 +264,6 @@ const CustomerForm = () => {
                                         setFieldValue("model", selectedOption.label);
                                         setSelectedOption(selectedOption);
                                     }}
-
                                     placeholder="Search..."
                                     value={selectedOption}
                                 />

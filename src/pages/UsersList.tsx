@@ -246,9 +246,10 @@ const UsersList = () => {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[40%]">Name</TableHead>
-                                <TableHead className="w-[20%]">Detail</TableHead>
-                                <TableHead className="w-[20%]">Status</TableHead>
+                                <TableHead className="w-[30%]">Name</TableHead>
+                                <TableHead className="w-[20%]">Email</TableHead>
+                                <TableHead className="w-[20%]">Role</TableHead>
+                                <TableHead className="w-[10%]">Status</TableHead>
                                 <TableHead className="w-[20%]">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -258,6 +259,17 @@ const UsersList = () => {
                                     <TableRow key={user.uuid}>
                                         <TableCell>{user.name}</TableCell>
                                         <TableCell>{user.email}</TableCell>
+                                        <TableCell>
+                                            {user.roles && user.roles.length > 0 && (
+                                                <>
+                                                    {user.roles.map((role, index) => (
+                                                        <Badge key={role.id} variant="default" className="bg-purple-700 hover:bg-purple-900 m-1">
+                                                            {role.name}
+                                                        </Badge>
+                                                    ))}
+                                                </>
+                                            )}
+                                        </TableCell>
                                         <TableCell>
                                             {user.status === "Active" && (
                                                 <Badge variant="default" className="bg-green-500 hover:bg-green-600">Active</Badge>

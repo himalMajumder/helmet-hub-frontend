@@ -134,7 +134,7 @@ const RoleForm = () => {
         mutationKey: ["saveRole"],
         mutationFn: (values: FormValues) => saveRole({ roleId, values, token: authenticated_token, permissions: selectedPermissions }),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["roles"] });
+            queryClient.invalidateQueries({ queryKey: ["roles_list"] });
             toast({ title: "Success", description: roleId ? "Role updated!" : "Role created!" });
             navigate("/roles");
         },

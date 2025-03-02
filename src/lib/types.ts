@@ -7,12 +7,6 @@ export interface BikeModelType {
     status: string;
 }
 
-export interface UserType {
-    uuid: string;
-    name: string;
-    email: string;
-    status: string;
-}
 
 export interface PermissionType {
     id: number;
@@ -24,6 +18,15 @@ export interface RoleType {
     id: number;
     name: string;
     permissions?: PermissionType[];
+}
+
+
+export interface UserType {
+    uuid: string;
+    name: string;
+    email: string;
+    status: string;
+    roles?: RoleType[];
 }
 
 

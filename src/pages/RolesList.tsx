@@ -30,7 +30,7 @@ const fetchRoles = async (authenticated_token: string, search?: string) => {
 
         const response = await axiosConfig({
             method: "get",
-            url: "/roles",
+            url: "/roles/permissions",
             params,
             headers: {
                 Authorization: `Bearer ${authenticated_token}`,
@@ -68,7 +68,7 @@ const RolesList = () => {
      * Query to fetch roles
      */
     const { data: roles = [], error, isError, refetch } = useQuery({
-        queryKey: debouncedSearch ? ["roles", debouncedSearch] : ["roles"],
+        queryKey: debouncedSearch ? ["roles_list", debouncedSearch] : ["roles_list"],
         queryFn: () => {
             return fetchRoles(authenticated_token, debouncedSearch);
         },
