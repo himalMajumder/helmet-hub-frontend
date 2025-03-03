@@ -51,7 +51,10 @@ const fetchRoles = async (authenticated_token: string, search?: string) => {
 
 const RolesList = () => {
     const navigate = useNavigate();
-    const { authenticated_token } = useAppContext();
+    const { authenticated_token, authenticatedUser, hasPermission } = useAppContext();
+
+    // console.log(hasPermission("Deactivate User"));
+
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const [searchQuery, setSearchQuery] = useState<string>("");

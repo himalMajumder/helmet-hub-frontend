@@ -62,7 +62,7 @@ const App = () => {
 						<Route path="/users/edit/:uuid" element={<PrivateRoute><Layout><UserEdit /></Layout></PrivateRoute>} />
 
 						{/* Roles Routes */}
-						<Route path="/roles" element={<PrivateRoute><Layout><RolesList /></Layout></PrivateRoute>} />
+						<Route path="/roles" element={<PrivateRoute permission="Preview Role"><Layout><RolesList /></Layout></PrivateRoute>} />
 						<Route path="/roles/create" element={<PrivateRoute><Layout><RoleCreate /></Layout></PrivateRoute>} />
 						<Route path="/roles/edit/:id" element={<PrivateRoute><Layout><RoleEdit /></Layout></PrivateRoute>} />
 

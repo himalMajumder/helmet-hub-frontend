@@ -20,6 +20,8 @@ const Login = () => {
         setAuthenticatedToken,
         authenticatedUser,
         setAuthenticatedUser,
+        authenticatedUserPermissions,
+        setAuthenticatedUserPermissions,
         set_authentication,
         set_authentication_token
     } = useAppContext();
@@ -63,6 +65,8 @@ const Login = () => {
                 set_authentication(true);
                 set_authentication_token(token);
                 setAuthenticatedUser(user);
+                setAuthenticatedUserPermissions(user.permissions);
+                
                 toast({
                     title: "Success",
                     description: "Logged in successfully!",
@@ -93,31 +97,11 @@ const Login = () => {
                 set_authentication(false);
                 set_authentication_token(null);
                 setAuthenticatedUser(null);
+                setAuthenticatedUserPermissions(null);
             });
 
     };
 
-
-    // localStorage.setItem("token", "mock-token"); // Simulate token storage
-    // window.location.href = "/"; // Redirect to private route
-
-    // // Mock authentication
-    // if (
-    //   values.email === "" || // Allow empty credentials
-    //   (values.email === "admin@gmail.com" && values.password === "12345")
-    // ) {
-    //   toast({
-    //     title: "Success",
-    //     description: "Logged in successfully!",
-    //   });
-    //   navigate("/");
-    // } else {
-    //   toast({
-    //     variant: "destructive",
-    //     title: "Error",
-    //     description: "Invalid credentials. Try empty fields or admin@gmail.com/12345",
-    //   });
-    // }
 
     const handleSignUp = (values: { fullName: string; email: string; password: string }) => {
         toast({

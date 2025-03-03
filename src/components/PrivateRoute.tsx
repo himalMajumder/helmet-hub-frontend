@@ -5,11 +5,21 @@ import { useAppContext } from "@/contexts/AppContext";
 
 interface PrivateRouteProps {
     children: ReactNode;
+    permission?: string;
 }
 
-const PrivateRoute: React.FC<PrivateRouteProps> = ({ children }) => {
-    const { is_authenticated, authenticatedUser, authenticated_token } = useAppContext();
-    return is_authenticated ? <>{children}</> : <Navigate to="/login" />;
+const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, permission }) => {
+    const { is_authenticated, hasPermission } = useAppContext();
+
+    if (permission !== undefined) {
+        return is_authenticated ? <>
+            {hasPermission(permission) ? children : ""}
+        </> : <Navigate to="/login" />;
+    }
+
+    return is_authenticated ? <>
+        {children}
+    </> : <Navigate to="/login" />;
 };
 
 export default PrivateRoute;

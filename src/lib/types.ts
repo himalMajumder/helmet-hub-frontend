@@ -27,6 +27,7 @@ export interface UserType {
     email: string;
     status: string;
     roles?: RoleType[];
+    permissions?: PermissionType[];
 }
 
 
