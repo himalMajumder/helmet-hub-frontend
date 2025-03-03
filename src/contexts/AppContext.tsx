@@ -1,6 +1,7 @@
 import axiosConfig, { setCsrfToken } from "@/lib/axiosConfig";
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 import { PermissionType, TokenType, UserType } from "@/lib/types";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 interface AppState {
     authenticatedUser: UserType | null;
@@ -41,7 +42,17 @@ export const AppProvider = ({ children }: UserProviderProps) => {
     }
 
     const hasPermission = (permissionName: string): boolean => {
+        /**
+         * Check if the user is a super admin
+         */
+        if (authenticatedUser.super_admin) {
+            return true;
+        }
+        /**
+         * Check if the user has the permission
+         */
         const findPermission = authenticatedUserPermissions?.find((permission) => permission.name === permissionName);
+
         return !!findPermission;
     };
 
@@ -69,7 +80,7 @@ export const AppProvider = ({ children }: UserProviderProps) => {
                 setAuthenticatedUser(null);
                 console.error("Error fetching data:", error);
             } finally {
-                setIsLoading(false); // Set loading to false after the check is complete
+                setIsLoading(false);
             }
         };
         let token = localStorage.getItem("token");
@@ -86,8 +97,19 @@ export const AppProvider = ({ children }: UserProviderProps) => {
 
     // If still loading, show a loading spinner or nothing
     if (isLoading) {
-        return <div>Loading...</div>; // Or a loading spinner
+        return (
+            <div className="fixed inset-0 bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col items-center justify-center z-50">
+                <div className="text-center">
+                    <LoadingSpinner className="mb-6" />
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">Loading...</h2>
+                    <p className="text-gray-600 max-w-md mx-auto">
+                        Please wait while we prepare your experience...
+                    </p>
+                </div>
+            </div>
+        );
     }
+
 
     return (
         <AppContext.Provider value={{

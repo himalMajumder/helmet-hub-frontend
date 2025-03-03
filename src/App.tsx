@@ -57,14 +57,14 @@ const App = () => {
 						<Route path="/models/edit/:uuid" element={<PrivateRoute><Layout><ModelEdit /></Layout></PrivateRoute>} />
 						
 						{/* Users Routes */}
-						<Route path="/users" element={<PrivateRoute><Layout><UsersList /></Layout></PrivateRoute>} />
-						<Route path="/users/create" element={<PrivateRoute><Layout><UserCreate /></Layout></PrivateRoute>} />
-						<Route path="/users/edit/:uuid" element={<PrivateRoute><Layout><UserEdit /></Layout></PrivateRoute>} />
+						<Route path="/users" element={<PrivateRoute permission="Preview User"><Layout><UsersList /></Layout></PrivateRoute>} />
+						<Route path="/users/create" element={<PrivateRoute permission="Create User"><Layout><UserCreate /></Layout></PrivateRoute>} />
+						<Route path="/users/edit/:uuid" element={<PrivateRoute permission="Edit User"><Layout><UserEdit /></Layout></PrivateRoute>} />
 
 						{/* Roles Routes */}
 						<Route path="/roles" element={<PrivateRoute permission="Preview Role"><Layout><RolesList /></Layout></PrivateRoute>} />
-						<Route path="/roles/create" element={<PrivateRoute><Layout><RoleCreate /></Layout></PrivateRoute>} />
-						<Route path="/roles/edit/:id" element={<PrivateRoute><Layout><RoleEdit /></Layout></PrivateRoute>} />
+						<Route path="/roles/create" element={<PrivateRoute permission="Create Role"><Layout><RoleCreate /></Layout></PrivateRoute>} />
+						<Route path="/roles/edit/:id" element={<PrivateRoute permission="Edit Role"><Layout><RoleEdit /></Layout></PrivateRoute>} />
 
 
 

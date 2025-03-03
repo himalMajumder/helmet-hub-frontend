@@ -1,6 +1,7 @@
 import { useAppContext } from "@/contexts/AppContext";
 import { useToast } from "@/hooks/use-toast";
 import axiosConfig from "@/lib/axiosConfig";
+import { MenuItemType } from "@/lib/types";
 import {
     Home,
     Users,
@@ -19,23 +20,21 @@ import {
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Sidebar = () => {
+    const { hasPermission } = useAppContext();
+
     const location = useLocation();
     const navigate = useNavigate();
     const { toast } = useToast();
 
     const {
-        is_authenticated,
-        setIsAuthenticated,
         authenticated_token,
-        setAuthenticatedToken,
-        authenticatedUser,
         setAuthenticatedUser,
         set_authentication,
         set_authentication_token
     } = useAppContext();
 
 
-    const menuItems = [
+    const menuItems: MenuItemType[] = [
         { icon: Home, label: "Dashboard", path: "/" },
         { icon: Plus, label: "Add Product", path: "/products/add" },
         { icon: ShieldCheck, label: "Check Warranty", path: "/warranty-check" },
@@ -48,8 +47,8 @@ const Sidebar = () => {
             label: "Settings",
             path: "/settings",
             subItems: [
-                { icon: UserCog, label: "User Management", path: "/users" },
-                { icon: Shield, label: "Role Management", path: "/roles" },
+                { icon: UserCog, label: "User Management", path: "/users", permission: "Preview User" },
+                { icon: Shield, label: "Role Management", path: "/roles", permission: "Preview Role" },
                 { icon: MessageSquare, label: "SMS API Integration", path: "/settings/sms-api" }
             ]
         },
@@ -89,9 +88,16 @@ const Sidebar = () => {
 
                 <nav className="flex-1">
                     <ul className="space-y-2">
-                        {menuItems.map((item) => {
+                        {menuItems.map((item: MenuItemType) => {
                             const Icon = item.icon;
                             const isActive = location.pathname === item.path;
+
+                            /**
+                             * Check if the user has the permission to access this menu item
+                             */
+                            if (item.permission !== undefined && !hasPermission(item.permission)) {
+                                return null;
+                            }
 
                             return (
                                 <li key={item.path}>
@@ -107,9 +113,16 @@ const Sidebar = () => {
                                     </Link>
                                     {item.subItems && (
                                         <ul className="ml-8 mt-2 space-y-2">
-                                            {item.subItems.map((subItem) => {
+                                            {item.subItems.map((subItem: MenuItemType) => {
                                                 const SubIcon = subItem.icon;
                                                 const isSubActive = location.pathname === subItem.path;
+
+                                                /**
+                                                 * Check if the user has the permission to access this sub menu item
+                                                 */
+                                                if (subItem.permission !== undefined && !hasPermission(subItem.permission)) {
+                                                    return null;
+                                                }
 
                                                 return (
                                                     <li key={subItem.path}>

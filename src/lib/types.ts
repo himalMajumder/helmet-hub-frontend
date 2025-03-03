@@ -1,3 +1,5 @@
+import { LucideIcon } from "lucide-react";
+
 export type TokenType = string | null;
 
 export interface BikeModelType {
@@ -26,8 +28,16 @@ export interface UserType {
     name: string;
     email: string;
     status: string;
+    super_admin: boolean;
     roles?: RoleType[];
     permissions?: PermissionType[];
 }
 
 
+export type MenuItemType = {
+    icon: LucideIcon;
+    label: string;
+    path: string;
+    permission?: string; // Optional permission field
+    subItems?: MenuItemType[]; // Optional subItems array (for nested menus)
+};

@@ -2,6 +2,7 @@ import React, { ReactNode, useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { isAuthenticated } from "@/lib/auth";
 import { useAppContext } from "@/contexts/AppContext";
+import AccessDenied from "@/pages/error/AccessDenied";
 
 interface PrivateRouteProps {
     children: ReactNode;
@@ -13,7 +14,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ children, permission }) => 
 
     if (permission !== undefined) {
         return is_authenticated ? <>
-            {hasPermission(permission) ? children : ""}
+            {hasPermission(permission) ? children : <AccessDenied />}
         </> : <Navigate to="/login" />;
     }
 

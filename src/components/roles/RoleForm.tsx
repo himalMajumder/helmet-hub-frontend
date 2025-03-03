@@ -203,9 +203,9 @@ const RoleForm = () => {
                             <Button type="button" variant="outline" onClick={() => resetForm()}>
                                 Clear
                             </Button>
-                            <Button type="submit">
-                                {roleId ? "Update" : "Create"} Role
-                            </Button>
+                            <Button type="submit" disabled={mutation.isPending}>
+                                {mutation.isPending ? (roleId ? "Updating..." : "Creating...") : roleId ? "Update" : "Create"}
+                            </Button> 
                         </div>
                     </Form>
                 )}

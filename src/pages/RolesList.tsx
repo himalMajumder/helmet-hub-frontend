@@ -51,7 +51,7 @@ const fetchRoles = async (authenticated_token: string, search?: string) => {
 
 const RolesList = () => {
     const navigate = useNavigate();
-    const { authenticated_token, authenticatedUser, hasPermission } = useAppContext();
+    const { authenticated_token, hasPermission } = useAppContext();
 
     // console.log(hasPermission("Deactivate User"));
 
@@ -143,7 +143,7 @@ const RolesList = () => {
     return (
         <>
             <div className="flex justify-end space-x-4 p-5">
-                <Button type="button" onClick={() => navigate("/roles/create")} variant="default">Create Role</Button>
+                {hasPermission("Create Role") && <Button type="button" onClick={() => navigate("/roles/create")} variant="default">Create Role</Button>}
             </div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                 <h1 className="text-2xl md:text-3xl font-bold">Role List</h1>
@@ -184,15 +184,15 @@ const RolesList = () => {
                                         </TableCell>
 
                                         <TableCell className="space-x-2">
-                                            <Button variant="default" size="sm" onClick={() => navigate(`/roles/edit/${role.id}`)}>Edit</Button>
-                                            <Button
+                                            { hasPermission("Edit Role") && <Button variant="default" size="sm" onClick={() => navigate(`/roles/edit/${role.id}`)}>Edit</Button>}
+                                            { hasPermission("Delete Role") && <Button
                                                 variant="destructive"
                                                 size="sm"
                                                 onClick={() => handleDelete(role.id)}
                                                 disabled={deleteRoleMutation.isPending}
                                             >
                                                 {deleteRoleMutation.isPending ? "Deleting..." : "Delete"}
-                                            </Button>
+                                            </Button>}
                                         </TableCell>
                                     </TableRow>
                                 ))

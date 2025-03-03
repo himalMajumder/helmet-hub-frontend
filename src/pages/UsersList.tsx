@@ -51,7 +51,7 @@ const fetchUsers = async (authenticated_token: string, search?: string) => {
 
 const UsersList = () => {
     const navigate = useNavigate();
-    const { authenticated_token, authenticatedUser } = useAppContext();
+    const { authenticated_token, authenticatedUser, hasPermission } = useAppContext();
     const { toast } = useToast();
     const queryClient = useQueryClient();
     const [searchQuery, setSearchQuery] = useState<string>("");
@@ -228,7 +228,7 @@ const UsersList = () => {
     return (
         <>
             <div className="flex justify-end space-x-4 p-5">
-                <Button type="button" onClick={() => navigate("/users/create")} variant="default">Create User</Button>
+                {hasPermission('Create User') && <Button type="button" onClick={() => navigate("/users/create")} variant="default">Create User</Button>}
             </div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
                 <h1 className="text-2xl md:text-3xl font-bold">User List</h1>
@@ -279,7 +279,7 @@ const UsersList = () => {
                                             )}
                                         </TableCell>
                                         <TableCell className="space-x-2">
-                                            {user.uuid !== authenticatedUser.uuid && user.status === "Active" && (
+                                            {hasPermission('Deactivate User') && user.uuid !== authenticatedUser.uuid && user.status === "Active" && (
                                                 <Button
                                                     variant="default"
                                                     size="sm"
@@ -290,7 +290,7 @@ const UsersList = () => {
                                                     {inactiveUserMutation.isPending ? "Inactivating..." : "Inactive"}
                                                 </Button>
                                             )}
-                                            {user.uuid !== authenticatedUser.uuid && user.status === "Inactive" && (
+                                            {hasPermission('Activate User') && user.uuid !== authenticatedUser.uuid && user.status === "Inactive" && (
                                                 <Button
                                                     variant="default"
                                                     size="sm"
@@ -302,9 +302,9 @@ const UsersList = () => {
                                                 </Button>
                                             )}
 
-                                            <Button variant="default" size="sm" onClick={() => navigate(`/users/edit/${user.uuid}`)}>Edit</Button>
+                                            {hasPermission('Edit User') && <Button variant="default" size="sm" onClick={() => navigate(`/users/edit/${user.uuid}`)}>Edit</Button>}
 
-                                            {user.uuid !== authenticatedUser.uuid && (
+                                            { hasPermission('Delete User') && user.uuid !== authenticatedUser.uuid && (
                                                 <Button
                                                     variant="destructive"
                                                     size="sm"
