@@ -41,3 +41,13 @@ export type MenuItemType = {
     permission?: string; // Optional permission field
     subItems?: MenuItemType[]; // Optional subItems array (for nested menus)
 };
+
+
+
+export interface ProductType {
+    uuid: string;
+    name: string;
+    type: string;
+    model_number: string;
+    status: string;
+}

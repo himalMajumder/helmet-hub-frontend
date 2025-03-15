@@ -14,16 +14,18 @@ import CustomerInformation from "./pages/CustomerInformation";
 import WarrantyRegistration from "./pages/WarrantyRegistration";
 import PrivateRoute from "./components/PrivateRoute";
 import PublicRoute from "./components/PublicRoute";
-import ModelList from "./pages/ModelList";
-import ModelCreate from "./pages/ModelCreate";
+import ModelList from "./pages/model/ModelList";
+import ModelCreate from "./pages/model/ModelCreate";
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
-import ModelEdit from "./pages/ModelEdit";
-import UsersList from "./pages/UsersList";
-import UserCreate from "./pages/UserCreate";
-import UserEdit from "./pages/UserEdit";
-import RolesList from "./pages/RolesList";
-import RoleCreate from "./pages/RoleCreate";
-import RoleEdit from "./pages/RoleEdit";
+import ModelEdit from "./pages/model/ModelEdit";
+import UsersList from "./pages/user/UsersList";
+import UserCreate from "./pages/user/UserCreate";
+import UserEdit from "./pages/user/UserEdit";
+import RolesList from "./pages/role/RolesList";
+import RoleCreate from "./pages/role/RoleCreate";
+import RoleEdit from "./pages/role/RoleEdit";
+import ProductList from "./pages/product/ProductList";
+import ProductExcelUpload from "./pages/product/ProductExcelUpload";
 
 const queryClient = new QueryClient({
 	defaultOptions: {
@@ -48,8 +50,11 @@ const App = () => {
 					<Routes>
 						<Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
 						<Route path="/" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>} />
-						<Route path="/warranty-registration" element={<PrivateRoute><Layout><WarrantyRegistration /></Layout></PrivateRoute>} />
-						<Route path="/customer-information" element={<PrivateRoute><Layout><CustomerInformation /></Layout></PrivateRoute>} />
+						
+						{/* Products Routes */}
+						<Route path="/products" element={<PrivateRoute><Layout><ProductList /></Layout></PrivateRoute>} />
+						<Route path="/products/import" element={<PrivateRoute><Layout><ProductExcelUpload /></Layout></PrivateRoute>} />
+						<Route path="/products/add" element={<PrivateRoute><Layout><AddProduct /></Layout></PrivateRoute>} />
 
 						{/* Models Routes */}
 						<Route path="/models" element={<PrivateRoute><Layout><ModelList /></Layout></PrivateRoute>} />
@@ -66,11 +71,10 @@ const App = () => {
 						<Route path="/roles/create" element={<PrivateRoute permission="Create Role"><Layout><RoleCreate /></Layout></PrivateRoute>} />
 						<Route path="/roles/edit/:id" element={<PrivateRoute permission="Edit Role"><Layout><RoleEdit /></Layout></PrivateRoute>} />
 
-
-
-						
+					
+						<Route path="/warranty-registration" element={<PrivateRoute><Layout><WarrantyRegistration /></Layout></PrivateRoute>} />
+						<Route path="/customer-information" element={<PrivateRoute><Layout><CustomerInformation /></Layout></PrivateRoute>} />
 						<Route path="/customers" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>} />
-						<Route path="/products/add" element={<PrivateRoute><Layout><AddProduct /></Layout></PrivateRoute>} />
 						<Route path="/warranty-check" element={<PrivateRoute><Layout><WarrantyCheck /></Layout></PrivateRoute>} />
 						<Route path="/warranties" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>} />
 						<Route path="/settings" element={<PrivateRoute><Layout><Index /></Layout></PrivateRoute>} />

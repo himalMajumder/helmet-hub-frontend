@@ -17,14 +17,14 @@ import axiosConfig from "@/lib/axiosConfig";
 import { useAppContext } from "@/contexts/AppContext";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
-import {BikeModelType} from "@/lib/types";
+import { ProductType } from "@/lib/types";
 
 // Fetch function for react-query
-const fetchBikeModels = async (authenticated_token: string) => {
+const fetchProducts = async (authenticated_token: string) => {
     try {
         const response = await axiosConfig({
             method: "get",
-            url: "/bike-models",
+            url: "/products",
             headers: {
                 Authorization: `Bearer ${authenticated_token}`,
             }
@@ -34,15 +34,15 @@ const fetchBikeModels = async (authenticated_token: string) => {
             throw new Error(`HTTP Error ${response.status}: ${response.statusText}`);
         }
 
-        return response.data.data.bikeModels;
+        return response.data.data;
     } catch (error) {
-        console.error("Error fetching bike models:", error);
-        throw new Error(error.response?.data?.message || "Failed to fetch bike models");
+        console.error("Error fetching products:", error);
+        throw new Error(error.response?.data?.message || "Failed to fetch products");
     }
 
 };
 
-const ModelList = () => {
+const ProductList = () => {
     const navigate = useNavigate();
     const { authenticated_token } = useAppContext();
     const { toast } = useToast();
@@ -50,12 +50,12 @@ const ModelList = () => {
 
 
     /**
-     * Query to fetch bike models
+     * Query to fetch products
      */
-    const { data: bikeModels = [], error, isError, refetch } = useQuery({
-        queryKey: ["bikeModels"],
+    const { data: products = [], error, isError, refetch } = useQuery({
+        queryKey: ["products"],
         queryFn: () => {
-            return fetchBikeModels(authenticated_token);
+            return fetchProducts(authenticated_token);
         },
         enabled: !!authenticated_token,
         staleTime: 1000 * 60 * 5,
@@ -79,21 +79,21 @@ const ModelList = () => {
     }, [isError, error, toast]);
 
     /**
-     * Mutation to delete a bike model
+     * Mutation to delete a product
      */
-    const deleteBikeModelMutation = useMutation({
-        mutationKey: ["deleteBikeModel"],
+    const deleteProductMutation = useMutation({
+        mutationKey: ["deleteProduct"],
         mutationFn: async (uuid: string) => {
             const response = await axiosConfig({
                 method: "delete",
-                url: `/bike-models/${uuid}`,
+                url: `/products/${uuid}`,
                 headers: {
                     Authorization: `Bearer ${authenticated_token}`,
                 }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || "Failed to delete bike model");
+                throw new Error(response.data.message || "Failed to delete product");
             }
 
             return response.data;
@@ -103,7 +103,7 @@ const ModelList = () => {
                 title: "Success",
                 description: data.message || "Bike model deleted successfully",
             });
-            queryClient.invalidateQueries({ queryKey: ["bikeModels"] });
+            queryClient.invalidateQueries({ queryKey: ["products"] });
         }
     });
 
@@ -112,8 +112,8 @@ const ModelList = () => {
      * @param uuid 
      */
     const handleDelete = async (uuid: string) => {
-        if (window.confirm("Are you sure you want to delete this bike model?")) {
-            deleteBikeModelMutation.mutateAsync(uuid).catch((error) => {
+        if (window.confirm("Are you sure you want to delete this product?")) {
+            deleteProductMutation.mutateAsync(uuid).catch((error) => {
                 toast({
                     title: "Error",
                     description: error instanceof Error ? error.message : "Something went wrong",
@@ -123,21 +123,21 @@ const ModelList = () => {
     };
 
     /**
-     * Mutation to inactive a bike model
+     * Mutation to inactive a product
      */
-    const inactiveBikeModelMutation = useMutation({
-        mutationKey: ["suspendBikeModel"],
+    const inactiveProductMutation = useMutation({
+        mutationKey: ["suspendProduct"],
         mutationFn: async (uuid: string) => {
             const response = await axiosConfig({
                 method: "put",
-                url: `/bike-models/${uuid}/suspend`,
+                url: `/products/${uuid}/suspend`,
                 headers: {
                     Authorization: `Bearer ${authenticated_token}`,
                 }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || "Failed to inactive bike model");
+                throw new Error(response.data.message || "Failed to inactive product");
             }
 
             return response.data;
@@ -147,7 +147,7 @@ const ModelList = () => {
                 title: "Success",
                 description: data.message || "Bike model inactive successfully",
             });
-            queryClient.invalidateQueries({ queryKey: ["bikeModels"] });
+            queryClient.invalidateQueries({ queryKey: ["products"] });
         }
     });
 
@@ -156,8 +156,8 @@ const ModelList = () => {
      * @param uuid 
      */
     const handleInactive = async (uuid: string) => {
-        if (window.confirm("Are you sure you want to inactive this bike model?")) {
-            inactiveBikeModelMutation.mutateAsync(uuid).catch((error) => {
+        if (window.confirm("Are you sure you want to inactive this product?")) {
+            inactiveProductMutation.mutateAsync(uuid).catch((error) => {
                 toast({
                     title: "Error",
                     description: error instanceof Error ? error.message : "Something went wrong",
@@ -167,21 +167,21 @@ const ModelList = () => {
     };
 
     /**
-     * Mutation to active a bike model
+     * Mutation to active a product
      */
-    const activeBikeModelMutation = useMutation({
-        mutationKey: ["activateBikeModel"],
+    const activeProductMutation = useMutation({
+        mutationKey: ["activateProduct"],
         mutationFn: async (uuid: string) => {
             const response = await axiosConfig({
                 method: "put",
-                url: `/bike-models/${uuid}/activate`,
+                url: `/products/${uuid}/activate`,
                 headers: {
                     Authorization: `Bearer ${authenticated_token}`,
                 }
             });
 
             if (response.status !== 200) {
-                throw new Error(response.data.message || "Failed to activate bike model");
+                throw new Error(response.data.message || "Failed to activate product");
             }
 
             return response.data;
@@ -191,17 +191,17 @@ const ModelList = () => {
                 title: "Success",
                 description: data.message || "Bike model activate successfully",
             });
-            queryClient.invalidateQueries({ queryKey: ["bikeModels"] });
+            queryClient.invalidateQueries({ queryKey: ["products"] });
         }
     });
 
-     /**
-     * Handle active
-     * @param uuid 
-     */
+    /**
+    * Handle active
+    * @param uuid 
+    */
     const handleActive = async (uuid: string) => {
-        if (window.confirm("Are you sure you want to inactive this bike model?")) {
-            activeBikeModelMutation.mutateAsync(uuid).catch((error) => {
+        if (window.confirm("Are you sure you want to inactive this product?")) {
+            activeProductMutation.mutateAsync(uuid).catch((error) => {
                 toast({
                     title: "Error",
                     description: error instanceof Error ? error.message : "Something went wrong",
@@ -213,14 +213,15 @@ const ModelList = () => {
     return (
         <>
             <div className="flex justify-end space-x-4 p-5">
-                <Button type="button" onClick={() => navigate("/models/create")} variant="default">Create Model</Button>
+                <Button type="button" onClick={() => navigate("/products/create")} variant="default">Create Product</Button>
+                <Button type="button" onClick={() => navigate("/products/import")} variant="default">Import Products</Button>
             </div>
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-                <h1 className="text-2xl md:text-3xl font-bold">Model List</h1>
+                <h1 className="text-2xl md:text-3xl font-bold">Product List</h1>
                 <div className="relative w-full md:w-auto">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" />
                     <Input
-                        placeholder="Search Bike Models..."
+                        placeholder="Search Products..."
                         className="pl-10 w-full md:w-[300px]"
                     />
                 </div>
@@ -230,58 +231,60 @@ const ModelList = () => {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[40%]">Name</TableHead>
-                                <TableHead className="w-[20%]">Detail</TableHead>
+                                <TableHead className="w-[20%]">Name</TableHead>
+                                <TableHead className="w-[20%]">Type</TableHead>
+                                <TableHead className="w-[20%]">Model</TableHead>
                                 <TableHead className="w-[20%]">Status</TableHead>
                                 <TableHead className="w-[20%]">Actions</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {bikeModels.length > 0 ? (
-                                bikeModels.map((bikeModel: BikeModelType) => (
-                                    <TableRow key={bikeModel.uuid}>
-                                        <TableCell>{bikeModel.name}</TableCell>
-                                        <TableCell>{bikeModel.detail}</TableCell>
+                            {products.length > 0 ? (
+                                products.map((product: ProductType) => (
+                                    <TableRow key={product.uuid}>
+                                        <TableCell>{product.name}</TableCell>
+                                        <TableCell>{product.type}</TableCell>
+                                        <TableCell>{product.model_number}</TableCell>
                                         <TableCell>
-                                            {bikeModel.status === "Active" && (
+                                            {product.status === "Active" && (
                                                 <Badge variant="default" className="bg-green-500 hover:bg-green-600">Active</Badge>
                                             )}
-                                            {bikeModel.status === "Inactive" && (
+                                            {product.status === "Inactive" && (
                                                 <Badge variant="destructive" className="bg-yellow-500 hover:bg-yellow-600">Inactive</Badge>
                                             )}
                                         </TableCell>
                                         <TableCell className="space-x-2">
-                                            {bikeModel.status === "Active" && (
+                                            {product.status === "Active" && (
                                                 <Button
                                                     variant="default"
                                                     size="sm"
                                                     className="bg-yellow-500 hover:bg-yellow-600"
-                                                    onClick={() => handleInactive(bikeModel.uuid)}
-                                                    disabled={inactiveBikeModelMutation.isPending}
+                                                    onClick={() => handleInactive(product.uuid)}
+                                                    disabled={inactiveProductMutation.isPending}
                                                 >
-                                                    {inactiveBikeModelMutation.isPending ? "Inactivating..." : "Inactive"}
+                                                    {inactiveProductMutation.isPending ? "Inactivating..." : "Inactive"}
                                                 </Button>
                                             )}
-                                            {bikeModel.status === "Inactive" && (
+                                            {product.status === "Inactive" && (
                                                 <Button
                                                     variant="default"
                                                     size="sm"
                                                     className="bg-green-500 hover:bg-green-600"
-                                                    onClick={() => handleActive(bikeModel.uuid)}
-                                                    disabled={activeBikeModelMutation.isPending}
+                                                    onClick={() => handleActive(product.uuid)}
+                                                    disabled={activeProductMutation.isPending}
                                                 >
-                                                    {activeBikeModelMutation.isPending ? "Activating..." : "Active"}
+                                                    {activeProductMutation.isPending ? "Activating..." : "Active"}
                                                 </Button>
                                             )}
 
-                                            <Button variant="default" size="sm" onClick={() => navigate(`/models/edit/${bikeModel.uuid}`)}>Edit</Button>
+                                            <Button variant="default" size="sm" onClick={() => navigate(`/products/edit/${product.uuid}`)}>Edit</Button>
                                             <Button
                                                 variant="destructive"
                                                 size="sm"
-                                                onClick={() => handleDelete(bikeModel.uuid)}
-                                                disabled={deleteBikeModelMutation.isPending}
+                                                onClick={() => handleDelete(product.uuid)}
+                                                disabled={deleteProductMutation.isPending}
                                             >
-                                                {deleteBikeModelMutation.isPending ? "Deleting..." : "Delete"}
+                                                {deleteProductMutation.isPending ? "Deleting..." : "Delete"}
                                             </Button>
                                         </TableCell>
                                     </TableRow>
@@ -289,7 +292,7 @@ const ModelList = () => {
                             ) : (
                                 <TableRow>
                                     <TableCell colSpan={4} className="text-center text-gray-500">
-                                        No bike models found.
+                                        No products found.
                                     </TableCell>
                                 </TableRow>
                             )}
@@ -301,4 +304,4 @@ const ModelList = () => {
     );
 };
 
-export default ModelList;
+export default ProductList;

@@ -22,7 +22,7 @@ export const setCsrfToken = (): void => {
 
 // Axios instance with configuration
 const axiosConfig: AxiosInstance = axios.create({
-    baseURL: `${apiPath}/api`,
+    baseURL: `${apiPath}/api/v1/`,
 });
 
 // Set default headers
